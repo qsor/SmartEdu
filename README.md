@@ -14,39 +14,45 @@ cp .env.example .env
 
 # 3.з запуск
 docker compose up -d
-
+```
 
 
 ## разработка 
 
 # Фронтенд
+```bash
 cd client
 npm install
 npm run dev  # → http://localhost:5173
-
+```
 # Бэкенд
+```bash
 cd server
 npm install
 npm run dev  # → http://localhost:3000
-
+```
 # База данных (должна быть запущена отдельно)
 
 
 # Остановить всё
+```bash
 docker compose down
-
+```
 # Полная очистка (БД, образы, кэш)
+```bash
 docker compose down -v --rmi all --remove-orphans
-
+```
 # Пересобрать с нуля
+```bask
 docker compose up -d --build
+```
 
 
 
 
 
 ## структура проекта 
-
+```bash
 SmartEdu/
 ├── .github/workflows/     # CI/CD (ci.yml, deploy.yml)
 ├── client/                # Frontend
@@ -80,3 +86,4 @@ SmartEdu/
 ├── .gitignore, .dockerignore
 ├── README.md, CONTRIBUTING.md
 └── .env.example
+```
