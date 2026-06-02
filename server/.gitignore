@@ -1,0 +1,18 @@
+node_modules/
+
+# окружения
+.env
+.env.*
+!.env.example
+
+# Prisma Client
+/src/generated/prisma/
+
+
+# Логи и кэш*.log
+npm-debug.log*
+.vite/
+
+
+dist/
+build/
