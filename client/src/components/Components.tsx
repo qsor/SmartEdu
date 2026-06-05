@@ -29,7 +29,7 @@ function Button(button: ButtonInterface) {
 }
 
 function ButtonPrimary(button: ButtonInterface) {
-  if (button.disabled=true){
+  if (button.disabled===true){
     return <button disabled className="p-2 rounded-sm bg-white/0 text-amber-600 border-amber-600 border-1 cursor-default">{button.title}</button>
   }
   else {
