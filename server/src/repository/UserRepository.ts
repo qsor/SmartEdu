@@ -1,0 +1,94 @@
+import {DeleteUserResult, EditUserResult, User, UserId} from "../domain/index.js";
+
+export class UserRepository {
+    private users: User[] = []
+
+    async createUser(params: {
+        firstName: string
+        lastName: string | null
+        passwordHash: string | null
+        email: string | null
+        phoneNumber: string | null
+    }): Promise<CreateUserResult> {
+        if (params.email !== null && await this.existsByEmail(params.email))
+            return { type: 'Conflict', conflictOn: 'Email' }
+        if (params.phoneNumber !== null && await this.existsByPhoneNumber(params.phoneNumber))
+            return { type: 'Conflict', conflictOn: 'PhoneNumber' }
+
+        const user: User = {
+            id: crypto.randomUUID(),
+            firstName: params.firstName,
+            lastName: params.lastName,
+            passwordHash: params.passwordHash,
+            email: params.email,
+            phoneNumber: params.phoneNumber,
+        }
+
+        this.users.push(user)
+
+        return { type: 'Success', newUser: user }
+
+        // INSERT INTO users (first_name, last_name, password_hash, email) values (?, ?, ?, ?) RETURNING *
+        // throw new Error('Not yet implemented')
+    }
+
+    async exists(id: UserId): Promise<boolean> {
+        return this.users.some(it => it.id === id)
+
+        // SELECT 1 FROM users WHERE id = ?
+        // throw new Error('Not yet implemented')
+    }
+
+    async existsByEmail(email: string): Promise<boolean> {
+        return this.users.some(it => it.email === email)
+
+        // SELECT 1 FROM users WHERE email = ?
+        // throw new Error('Not yet implemented')
+    }
+
+    async existsByPhoneNumber(phoneNumber: string): Promise<boolean> {
+        return this.users.some(it => it.phoneNumber === phoneNumber)
+
+        // SELECT 1 FROM users WHERE phone_number = ?
+        // throw new Error('Not yet implemented')
+    }
+
+    async getUser(id: UserId): Promise<User | null> {
+        return this.users.find(it => it.id === id) ?? null
+
+        // SELECT FROM users WHERE id = ?
+        // throw new Error('Not yet implemented')
+    }
+
+    async getUserByEmail(email: string): Promise<User | null> {
+        return this.users.find(it => it.email === email) ?? null
+
+        // SELECT FROM users WHERE email = ?
+        // throw new Error('Not yet implemented')
+    }
+
+    async getUserByPhoneNumber(phoneNumber: string): Promise<User | null> {
+        return this.users.find(it => it.phoneNumber === phoneNumber) ?? null
+
+        // SELECT FROM users WHERE phone_number = ?
+        // throw new Error('Not yet implemented')
+    }
+
+    async editUser(id: UserId, fields: {
+        firstName?: string
+        lastName?: string | null
+        email?: string | null
+    }): Promise<EditUserResult> {
+        // UPDATE users SET ... = ... WHERE id = ?
+        throw new Error('Not yet implemented')
+    }
+
+    async deleteUser(id: UserId): Promise<DeleteUserResult> {
+        // DELETE FROM users WHERE id = ?
+        throw new Error('Not yet implemented')
+    }
+}
+
+export type CreateUserResult =
+    | { type: 'Success', newUser: User }
+    | { type: 'Conflict', conflictOn: 'Email' | 'PhoneNumber' }
