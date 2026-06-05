@@ -1,4 +1,4 @@
-import {MyselfDto} from "../types/users.js";
+import {MyselfDto} from "../index.js";
 
 // ------ Вход в аккаунт ------
 
@@ -8,7 +8,7 @@ export interface LoginRequestBody {
 }
 
 export type LoginResponse =
-    | { type: 'Success', myself: MyselfDto, accessToken: string }
+    | { type: 'Success', myself: MyselfDto }
     | { type: 'EmailNotRegistered' }
     | { type: 'InvalidPassword' }
 
@@ -22,7 +22,7 @@ export interface RegisterRequestBody {
 }
 
 export type RegisterResponse =
-    | { type: 'Success', myself: MyselfDto, accessToken: string }
+    | { type: 'Success', myself: MyselfDto }
     // * Этот email уже зарегистрирован *
     | { type: 'Conflict', conflictOn: 'Email' }
     // * Это некорректный email адрес *
@@ -31,7 +31,7 @@ export type RegisterResponse =
 // ------ Работа с JWT токенами ------
 
 export type RefreshTokensResponse =
-    | { type: 'Success', newAccessToken: string }
+    | { type: 'Success' }
     // Для клиента это означает, что он теперь разлогинен.
     // - CompromisedSession - Сессия была скомпроментирована, пользователь был принудительно разлогинен.
     // - InvalidSession - Эта сессия невалидна. Например, JWT Refresh token некорректно подписан подписью сервера

@@ -15,6 +15,11 @@ import Duration = Temporal.Duration;
 import Now = Temporal.Now;
 
 const REFRESH_TOKEN_COOKIE = 'refreshToken' as const
+// Если клиент получает хедер X-New-Access-Token, то он должен обновить его значение (в localStorage)
+const NEW_ACCESS_TOKEN_HEADER = 'X-New-Access-Token' as const
+// Если клиент получает хедер X-Delete-Access-Token с любым не-пустым значением, то он должен удалить свой accessToken (в localStorage)
+const DELETE_ACCESS_TOKEN_HEADER = 'X-Delete-Access-Token' as const
+const DELETE_ACCESS_TOKEN_HEADER_VALUE = 'Delete' as const
 
 export function authRoutes(
     router: Router,
@@ -34,10 +39,10 @@ export function authRoutes(
             return res
                 .status(200)
                 .cookie(...refreshTokenCookie(config, result.tokenPair.refreshToken))
+                .header(NEW_ACCESS_TOKEN_HEADER, result.tokenPair.accessToken)
                 .send({
                     type: 'Success',
                     myself: toMyselfDto(result.user),
-                    accessToken: result.tokenPair.accessToken,
                 })
         }
 
@@ -74,10 +79,10 @@ export function authRoutes(
             return res
                 .status(200)
                 .cookie(...refreshTokenCookie(config, result.tokenPair.refreshToken))
+                .header(NEW_ACCESS_TOKEN_HEADER, result.tokenPair.accessToken)
                 .send({
                     type: 'Success',
                     myself: toMyselfDto(result.newUser),
-                    accessToken: result.tokenPair.accessToken,
                 })
         }
 
@@ -129,7 +134,8 @@ export function authRoutes(
             return res
                 .status(200)
                 .cookie(...refreshTokenCookie(config, result.tokenPair.refreshToken))
-                .send({type: 'Success', newAccessToken: result.tokenPair.accessToken})
+                .header(NEW_ACCESS_TOKEN_HEADER, result.tokenPair.accessToken)
+                .send({type: 'Success'})
         }
 
         if (result.type === 'Failed') {

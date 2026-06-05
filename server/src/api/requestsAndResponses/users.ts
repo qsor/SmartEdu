@@ -1,4 +1,4 @@
-import {MyselfDto, UserDto} from "../types/users.js";
+import {MyselfDto, UserDto} from "../index.js";
 
 export type GetUserResponse =
     | { type: 'Success', isMyself: false, user: UserDto }
