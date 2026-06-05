@@ -6,6 +6,11 @@ interface ButtonInterface {
 
 interface TextInput {
   placeholder: string;
+  type?: string;
+  name?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  hasError?: boolean;
 }
 
 interface TextArea {
