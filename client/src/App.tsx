@@ -1,16 +1,5 @@
-import React, {
-  cloneElement,
-  useState,
-  type ChangeEvent,
-  type InputHTMLAttributes,
-  type ReactElement,
-} from 'react';
-import {
-  Button,
-  ButtonPrimary,
-  InputText,
-  AreaText,
-} from "./components/Components.tsx";
+import React, { useState, type ChangeEvent, type InputHTMLAttributes } from 'react';
+import { ButtonPrimary } from "./components/Components";
 
 type LoginForm = {
   email: string;
@@ -28,11 +17,6 @@ type LoginInputProps = {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 };
 
-const initialForm: LoginForm = {
-  email: '',
-  password: '',
-};
-
 function LoginInput({
   id,
   type = 'text',
@@ -41,29 +25,30 @@ function LoginInput({
   error,
   onChange,
 }: LoginInputProps) {
-  const baseInput = InputText({ placeholder }) as ReactElement<
-    InputHTMLAttributes<HTMLInputElement>
-  >;
-
-  return cloneElement(baseInput, {
-    id,
-    name: id,
-    type,
-    value,
-    onChange,
-    'aria-invalid': error ? 'true' : 'false',
-    className: [
-      baseInput.props.className,
-      'h-9 w-full text-xs text-gray-900 transition-colors',
-      'border-gray-300 placeholder:text-gray-300',
-      'focus:outline-2 focus:outline-offset-0',
-      error ? 'border-red-400 focus:outline-red-400' : 'focus:outline-orange-400',
-    ].join(' '),
-  });
+  return (
+    <input
+      id={id}
+      name={id}
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      aria-invalid={error ? 'true' : 'false'}
+      className={[
+        'h-9 w-full rounded border px-3 text-xs text-gray-900 transition-colors',
+        'border-gray-300 placeholder:text-gray-400',
+        'focus:outline-2 focus:outline-offset-0',
+        error ? 'border-red-400 focus:outline-red-400' : 'focus:outline-orange-400',
+      ].join(' ')}
+    />
+  );
 }
 
 function LoginScreen() {
-  const [form, setForm] = useState<LoginForm>(initialForm);
+  const [form, setForm] = useState<LoginForm>({
+    email: '',
+    password: '',
+  });
   const [errors, setErrors] = useState<FormErrors>({});
 
   const changeField = (event: ChangeEvent<HTMLInputElement>) => {
@@ -161,7 +146,7 @@ function LoginScreen() {
           Забыли пароль?
         </button>
 
-        <div className="mt-1 [&_button]:h-9 [&_button]:w-full [&_button]:rounded-sm [&_button]:border-orange-500 [&_button]:bg-orange-500 [&_button]:p-0 [&_button]:text-sm [&_button]:font-medium [&_button]:hover:bg-orange-600">
+        <div className="mt-1">
           <ButtonPrimary title="Войти" />
         </div>
       </form>
