@@ -15,7 +15,7 @@
 ---
 ## Разработчики 
 <a href="https://github.com/qsor" title="qsor">
-  <img src="https://github.com/qsor.png?size=40" width="40" style="border-radius: 50%; margin-right: 8px;" alt="qsor">
+  <img src="https://github.com/qsor.png?size=40" width="50" style="border-radius: 50%; margin-right: 8px;" alt="qsor">
 </a>
 <a href="https://github.com/Ghouloleg" title="Ghouloleg">
   <img src="https://github.com/Ghouloleg.png?size=50" width="50" style="border-radius: 50%; margin-right: 8px;" alt="Ghouloleg">
@@ -59,8 +59,9 @@
 <a href="https://github.com/Lone-Rocker" title="Lone-Rocker">
   <img src="https://github.com/Lone-Rocker.png?size=50" width="50" style="border-radius: 50%; margin-right: 8px;" alt="Lone-Rocker">
 </a>
-## Запуск
 
+
+## Запуск
 
 # 1. Клонирование репозитория
 ```bash
