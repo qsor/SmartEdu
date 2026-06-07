@@ -15,7 +15,7 @@
 ---
 ## Разработчики 
 <a href="https://github.com/qsor" title="qsor">
-  <img src="https://github.com/qsor.png?size=50" width="50" style="border-radius: 50%; margin-right: 8px;" alt="qsor">
+  <img src="https://github.com/qsor.png?size=40" width="40" style="border-radius: 50%; margin-right: 8px;" alt="qsor">
 </a>
 <a href="https://github.com/Ghouloleg" title="qsor">
   <img src="https://github.com/Ghouloleg.png?size=50" width="50" style="border-radius: 50%; margin-right: 8px;" alt="qsor">
