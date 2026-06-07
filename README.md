@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/qsor/SmartEdu/main/client/public/logo.png" width="40" height="48" style="vertical-align: middle; margin-right: 10px;" alt="SmartEdu"> SmartEdu
+# <img src="https://raw.githubusercontent.com/qsor/SmartEdu/main/client/public/logo.png" width="50" height="40" style="vertical-align: middle; margin-right: 10px;" alt="SmartEdu"> SmartEdu
 
 **SmartEdu by LLC MARLO GROUP**
 **Современная образовательная платформа** для прохождения онлайн-курсов
