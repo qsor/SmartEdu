@@ -13,6 +13,8 @@
 | **База данных** | <img src="https://cdn.simpleicons.org/postgresql" width="18" style="vertical-align: middle; margin-right: 4px;"> PostgreSQL 15 |
 | **Инфраструктура** | <img src="https://cdn.simpleicons.org/docker" width="18" style="vertical-align: middle; margin-right: 4px;"> Docker &nbsp; <img src="https://cdn.simpleicons.org/nginx" width="18" style="vertical-align: middle; margin-right: 4px;"> Nginx &nbsp; <img src="https://cdn.simpleicons.org/githubactions" width="18" style="vertical-align: middle; margin-right: 4px;"> GitHub Actions |
 ---
+## Разработчики 
+
 
 ## Запуск
 
