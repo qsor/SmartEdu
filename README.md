@@ -6,8 +6,6 @@
 
 ## Технологический стек
 
-## Технологический стек
-
 | Стек | Технологии |
 | :--- | :--- |
 | **Frontend** | <img src="https://cdn.simpleicons.org/react" width="18" style="vertical-align: middle; margin-right: 4px;"> React 18 &nbsp; <img src="https://cdn.simpleicons.org/typescript" width="18" style="vertical-align: middle; margin-right: 4px;"> TypeScript 5.4 &nbsp; <img src="https://cdn.simpleicons.org/vite" width="18" style="vertical-align: middle; margin-right: 4px;"> Vite 5 &nbsp; <img src="https://cdn.simpleicons.org/tailwindcss" width="18" style="vertical-align: middle; margin-right: 4px;"> Tailwind CSS 3 &nbsp; <img src="https://cdn.simpleicons.org/redux" width="18" style="vertical-align: middle; margin-right: 4px;"> Redux Toolkit |
