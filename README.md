@@ -140,6 +140,7 @@ npm install -D @types/react-dom
 
 
 Если что-то пошло не так (подсвечивается красным синтаксис TypeScript , это из за этих файлах  `node_modules package-lock.json`), выполни удаление этих файлов :
+само удаление ( если их нету то не помешает проверить этой командой ) 
 ```bash
 rm -rf node_modules package-lock.json
 ```
