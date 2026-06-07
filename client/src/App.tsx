@@ -1,6 +1,6 @@
 import React, { useState, type ChangeEvent, type InputHTMLAttributes } from 'react';
 import { ButtonPrimary } from "./components/Components";
-
+import styles from './styles/LoginScreen.module.css';
 type LoginForm = {
   email: string;
   password: string;
@@ -34,12 +34,7 @@ function LoginInput({
       value={value}
       onChange={onChange}
       aria-invalid={error ? 'true' : 'false'}
-      className={[
-        'h-9 w-full rounded border px-3 text-xs text-gray-900 transition-colors',
-        'border-gray-300 placeholder:text-gray-400',
-        'focus:outline-2 focus:outline-offset-0',
-        error ? 'border-red-400 focus:outline-red-400' : 'focus:outline-orange-400',
-      ].join(' ')}
+      className={`${styles.input} ${error ? styles.inputError : styles.inputNormal}`}
     />
   );
 }
@@ -101,12 +96,12 @@ function LoginScreen() {
   };
 
   return (
-    <section className="mx-auto max-w-[302px] rounded-lg bg-white px-9 py-8 shadow-[0_8px_24px_rgba(0,0,0,0.16)]">
-      <h1 className="mb-5 text-[28px] font-bold leading-none text-gray-900">Login</h1>
+    <section className={styles.loginSection}>
+      <h1 className={styles.title}>Login</h1>
 
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-950" htmlFor="email">
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label} htmlFor="email">
             Email
           </label>
           <LoginInput
@@ -118,12 +113,12 @@ function LoginScreen() {
             onChange={changeField}
           />
           {errors.email && (
-            <span className="text-xs font-medium text-red-500">{errors.email}</span>
+            <span className={styles.errorText}>{errors.email}</span>
           )}
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-950" htmlFor="password">
+        <div className={styles.fieldGroup}>
+          <label className={styles.label} htmlFor="password">
             Password
           </label>
           <LoginInput
@@ -135,26 +130,31 @@ function LoginScreen() {
             onChange={changeField}
           />
           {errors.password && (
-            <span className="text-xs font-medium text-red-500">{errors.password}</span>
+            <span className={styles.errorText}>{errors.password}</span>
           )}
         </div>
 
         <button
-          className="w-fit text-xs font-medium text-orange-500 transition-colors hover:text-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300"
+          className={styles.forgotButton}
           type="button"
         >
           Забыли пароль?
         </button>
 
-        <div className="mt-1">
-          <ButtonPrimary title="Войти" />
+        <div className={styles.submitWrapper}>
+          <button
+            type="submit"
+            className={styles.submitButton}
+          >
+            Войти
+          </button>
         </div>
       </form>
 
-      <p className="mt-5 text-xs font-medium text-gray-500">
+      <p className={styles.footerText}>
         Нет аккаунта?{' '}
         <button
-          className="text-orange-500 transition-colors hover:text-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300"
+          className={styles.registerButton}
           type="button"
         >
           Зарегистрироваться
@@ -166,7 +166,7 @@ function LoginScreen() {
 
 export default function App() {
   return (
-    <main className="min-h-screen bg-[#f5f5f5] px-5 py-8">
+    <main className={styles.mainWrapper}>
       <LoginScreen />
     </main>
   );

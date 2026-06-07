@@ -1,14 +1,14 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import './styles/index.css'
-import App from './App.tsx'
+import CatalogPage from './pages/Catalog' // <-- Здесь должен быть CatalogPage
 
 const rootElement = document.getElementById('root')
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <App />
+      <CatalogPage /> {/* <-- И здесь */}
     </StrictMode>,
   )
 }

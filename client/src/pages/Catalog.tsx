@@ -1,62 +1,88 @@
-// client/src/pages/Catalog.tsx
-import React from 'react';
+import { Sidebar } from '../components/Sidebar';
+import { Header } from '../components/Header';
 import CatalogCourseCard from '../components/CatalogCourseCard';
 
-interface Course {
-  id: number;
-  title: string;
-  description: string;
-  rating: number;
-  price: number;
-}
+// Мок
+const courses = [
+  {
+    id: 1,
+    title: 'Основы React',
+    description: 'Полный курс по React для начинающих. Изучите хуки, контекст и маршрутизацию.',
+    rating: 4.5,
+    price: 2990,
+  },
+  {
+    id: 2,
+    title: 'TypeScript с нуля',
+    description: 'Научитесь писать типобезопасный код. Интерфейсы, дженерики и утилитарные типы.',
+    rating: 5.0,
+    price: 3500,
+  },
+  {
+    id: 3,
+    title: 'Node.js и Express',
+    description: 'Создание REST API на Node.js. Работа с базами данных и аутентификация.',
+    rating: 4.8,
+    price: 4200,
+  },
+  {
+    id: 4,
+    title: 'Docker для разработчиков',
+    description: 'Контейнеризация приложений. Docker Compose, сети и тома.',
+    rating: 4.2,
+    price: 1990,
+  },
+  {
+    id: 5,
+    title: 'PostgreSQL на практике',
+    description: 'Проектирование баз данных, сложные запросы и оптимизация производительности.',
+    rating: 4.7,
+    price: 3100,
+  },
+  {
+    id: 6,
+    title: 'Tailwind CSS',
+    description: 'Быстрая и красивая верстка с использованием utility-first CSS фреймворка.',
+    rating: 4.9,
+    price: 1500,
+  },
+];
 
-const Catalog: React.FC = () => {
-  // Данные каталога (позже из API)
-  const allCourses: Course[] = [
-    {
-      id: 1,
-      title: "Курс 2",
-      description: "Описание курса, представьте что здесь очень много текста. Лорем Ипсум Дорем Сит Амет",
-      rating: 5,
-      price: 1200
-    },
-    {
-      id: 2,
-      title: "React для начинающих",
-      description: "Полный курс по React с нуля. Изучите хуки, компоненты, роутинг и управление состоянием. Практические проекты и домашние задания.",
-      rating: 4.8,
-      price: 3500
-    },
-    {
-      id: 3,
-      title: "TypeScript практика",
-      description: "Углубленный курс по TypeScript. Типы, дженерики, утилиты и интеграция с React.",
-      rating: 4.5,
-      price: 2800
-    }
-  ];
-
-  const handleCourseClick = (courseId: number): void => {
-    console.log('Открыть курс:', courseId);
+export default function CatalogPage() {
+  const handleCardClick = (courseTitle: string) => {
+    console.log(`Клик по курсу: ${courseTitle}`);
+    //  тута будет переход на страницу курса ( когда сделаете )
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6">Каталог курсов</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {allCourses.map(course => (
-          <CatalogCourseCard
-            key={course.id}
-            title={course.title}
-            description={course.description}
-            rating={course.rating}
-            price={course.price}
-            onCardClick={() => handleCourseClick(course.id)}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
+    <>
+      {/* Боковая панель */}
+      <Sidebar />
 
-export default Catalog;
+      {/* Шапка */}
+      <Header />
+
+      {/* Основной контент */}
+      <main className="ml-[230px] mt-[56px] min-h-screen bg-[#f5f5f5] p-8">
+        <div className="mx-auto max-w-7xl">
+          <h1 className="mb-8 text-3xl font-bold text-gray-900">Все курсы</h1>
+
+          {/* Адаптивная сетка карточек */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {courses.map((course) => (
+              <CatalogCourseCard
+                key={course.id}
+                title={course.title}
+                description={course.description}
+                rating={course.rating}
+                price={course.price}
+                imagePlaceholder={true}
+                onCardClick={() => handleCardClick(course.title)}
+              />
+            ))}
+          </div>
+        </div>
+      </main>
+    </>
+  );
+}
