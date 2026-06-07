@@ -23,7 +23,7 @@
 git clone https://github.com/qsor/smartedu.git
 ```
 ```bash
-cd smartedu
+cd SmartEdu
 ```
 # 2. Шаблон переменных окружения
 ```bash
