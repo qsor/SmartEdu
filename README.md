@@ -33,6 +33,10 @@ cp .env.example .env
 ```bash
 docker compose up -d
 ```
+# !!! Если ничего не запустилось - пересобираем все и запускаем
+```bash
+docker compose up -d --build
+```
 
 После запуска будут доступны:
 -  **Frontend:** http://localhost:5173
