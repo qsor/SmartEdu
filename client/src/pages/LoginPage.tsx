@@ -1,7 +1,8 @@
 import React, { useState, type ChangeEvent, type InputHTMLAttributes } from 'react';
-import { ButtonPrimary } from "../components/button/ButtonPrimary"; // 
+import InputText from '../components/button/InputText';
 import { useNavigate } from 'react-router-dom';
-import styles from '../styles/LoginScreen.module.css'; //
+import styles from '../styles/LoginScreen.module.css'; 
+import ButtonPrimary from '@/components/button/ButtonPrimary';
 
 type LoginForm = {
   email: string;
@@ -9,37 +10,6 @@ type LoginForm = {
 };
 
 type FormErrors = Partial<Record<keyof LoginForm, string>>;
-
-type LoginInputProps = {
-  id: keyof LoginForm;
-  type?: InputHTMLAttributes<HTMLInputElement>['type'];
-  placeholder: string;
-  value: string;
-  error?: string;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-};
-
-function LoginInput({
-  id,
-  type = 'text',
-  placeholder,
-  value,
-  error,
-  onChange,
-}: LoginInputProps) {
-  return (
-    <input
-      id={id}
-      name={id}
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      aria-invalid={error ? 'true' : 'false'}
-      className={`${styles.input} ${error ? styles.inputError : styles.inputNormal}`}
-    />
-  );
-}
 
 function LoginScreen() {
   const navigate = useNavigate();
@@ -108,12 +78,12 @@ function LoginScreen() {
           <label className={styles.label} htmlFor="email">
             Email
           </label>
-          <LoginInput
+          <InputText
             id="email"
             type="email"
             placeholder="username@gmail.com"
             value={form.email}
-            error={errors.email}
+            hasError={!!errors.email}
             onChange={changeField}
           />
           {errors.email && (
@@ -125,12 +95,12 @@ function LoginScreen() {
           <label className={styles.label} htmlFor="password">
             Password
           </label>
-          <LoginInput
+          <InputText
             id="password"
             type="password"
             placeholder="Password"
             value={form.password}
-            error={errors.password}
+            hasError={!!errors.password}
             onChange={changeField}
           />
           {errors.password && (
@@ -146,12 +116,9 @@ function LoginScreen() {
         </button>
 
         <div className={styles.submitWrapper}>
-          <button
-            type="submit"
-            className={styles.submitButton}
-          >
-            Войти
-          </button>
+          <ButtonPrimary
+            title="Войти"
+            type="submit"/>
         </div>
       </form>
 
