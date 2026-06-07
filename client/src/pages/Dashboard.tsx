@@ -1,20 +1,3 @@
-<<<<<<< HEAD
-import { Header } from "../components/Header";
-import { Sidebar } from "../components/Sidebar";
-
-export function Dashboard() {
-  return (
-    <div className="h-screen overflow-hidden">
-      <Sidebar />
-
-      <div className="ml-[230px] flex h-screen flex-col">
-        <Header />
-        <main></main>
-      </div>
-    </div>
-  );
-}
-=======
 import React from 'react';
 import DashboardCourseCard from '../components/DashboardCourseCard';
 
@@ -49,4 +32,4 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
->>>>>>> 375dce9 (Компоненты карточек курсов, прогресс бар, звёздный рейтинг)
+// >>>>>>> 375dce9 (Компоненты карточек курсов, прогресс бар, звёздный рейтинг)
