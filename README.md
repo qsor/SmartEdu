@@ -6,12 +6,14 @@
 
 ## Технологический стек
 
-| Стек | Технологии |
-|------|------------|
-| **Frontend** | React 18, TypeScript 5.4, Vite 5, Tailwind CSS 3, Redux Toolkit |
-| **Backend** | Node.js 20, Express, TypeScript, Prisma ORM, Zod |
-| **База данных** | PostgreSQL 15 |
-| **Инфраструктура** | Docker, Docker Compose, Nginx, GitHub Actions |
+## 🛠 Технологический стек
+
+| <img src="https://cdn.simpleicons.org/layers/6b7280" width="22" style="vertical-align: middle; margin-right: 6px;"> **Стек** | <img src="https://cdn.simpleicons.org/code/6b7280" width="22" style="vertical-align: middle; margin-right: 6px;"> **Технологии** |
+| :--- | :--- |
+| **Frontend** | <img src="https://cdn.simpleicons.org/react/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> React 18 &nbsp; <img src="https://cdn.simpleicons.org/typescript/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> TypeScript 5.4 &nbsp; <img src="https://cdn.simpleicons.org/vite/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> Vite 5 &nbsp; <img src="https://cdn.simpleicons.org/tailwindcss/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> Tailwind CSS 3 &nbsp; <img src="https://cdn.simpleicons.org/redux/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> Redux Toolkit |
+| **Backend** | <img src="https://cdn.simpleicons.org/nodedotjs/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> Node.js 20 &nbsp; <img src="https://cdn.simpleicons.org/express/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> Express &nbsp; <img src="https://cdn.simpleicons.org/typescript/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> TypeScript &nbsp; <img src="https://cdn.simpleicons.org/prisma/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> Prisma ORM &nbsp; <img src="https://cdn.simpleicons.org/zod/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> Zod |
+| **База данных** | <img src="https://cdn.simpleicons.org/postgresql/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> PostgreSQL 15 |
+| **Инфраструктура** | <img src="https://cdn.simpleicons.org/docker/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> Docker &nbsp; <img src="https://cdn.simpleicons.org/nginx/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> Nginx &nbsp; <img src="https://cdn.simpleicons.org/githubactions/6b7280" width="18" style="vertical-align: middle; margin-right: 4px;"> GitHub Actions |
 
 ---
 
