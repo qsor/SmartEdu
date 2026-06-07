@@ -225,4 +225,4 @@ npm run lint
 
 ## 📝 Лицензия
 
-MIT © [ QSOR ](https://github.com/qsor)
+MIT © [ MARLO GROUP ](https://github.com/qsor)
