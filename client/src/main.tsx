@@ -1,14 +1,19 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
+import { Provider } from 'react-redux' 
+import { RouterProvider } from 'react-router-dom' 
+import { store } from './store/store' 
+import { router } from '../src/store/router' 
 import './styles/index.css'
-import CatalogPage from './pages/Catalog' // <-- Здесь должен быть CatalogPage
 
 const rootElement = document.getElementById('root')
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <CatalogPage /> {/* <-- И здесь */}
+      <Provider store={store}>
+        <RouterProvider router={router} /> 
+      </Provider>
     </StrictMode>,
   )
 }
