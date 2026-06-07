@@ -1,4 +1,4 @@
-# 🎓 SmartEdu  company LLC MARLO GROUP
+# 🎓 SmartEdu  by LLC MARLO GROUP
 
 **Современная образовательная платформа** для прохождения онлайн-курсов
 
