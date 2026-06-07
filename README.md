@@ -127,6 +127,18 @@ SmartEdu/
 
 ##  Решение проблем
 
+
+Если подсвечивается react-dom/client в main.tsx, то нужно выполнить установку типов : 
+если не перешли в папку , то 
+```bash
+cd client
+```
+сама установка
+```bash
+npm install -D @types/react-dom
+```
+
+
 Если что-то пошло не так (подсвечивается красным синтаксис TypeScript , это из за этих файлах  `node_modules package-lock.json`), выполни удаление этих файлов :
 ```bash
 rm -rf node_modules package-lock.json
