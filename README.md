@@ -15,14 +15,7 @@
 ---
 ## Разработчики 
 <a href="https://github.com/qsor" title="qsor">
-  <svg width="40" height="40" style="margin-right: 8px;">
-    <defs>
-      <clipPath id="circle-qsor">
-        <circle cx="20" cy="20" r="20"/>
-      </clipPath>
-    </defs>
-    <image href="https://github.com/qsor.png?size=80" width="40" height="40" clip-path="url(#circle-qsor)"/>
-  </svg>
+  <img src="https://github.com/qsor.png?size=40" width="40" style="border-radius: 100%; margin-right: 8px;" alt="qsor">
 </a>
 <a href="https://github.com/Ghouloleg" title="qsor">
   <img src="https://github.com/Ghouloleg.png?size=50" width="50" style="border-radius: 50%; margin-right: 8px;" alt="qsor">
