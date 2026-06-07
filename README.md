@@ -1,7 +1,6 @@
-# <img src="https://raw.githubusercontent.com/qsor/SmartEdu/main/client/public/favicon.svg" width="32" height="32" style="vertical-align: middle; margin-right: 8px;" alt="SmartEdu"> SmartEdu
+# <img src="https://raw.githubusercontent.com/qsor/SmartEdu/main/client/public/favicon.svg" width="48" height="48" style="vertical-align: middle; margin-right: 10px;" alt="SmartEdu"> SmartEdu
 
 **SmartEdu by LLC MARLO GROUP**
-
 **Современная образовательная платформа** для прохождения онлайн-курсов
 
 ---
