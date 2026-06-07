@@ -14,7 +14,12 @@
 | **Инфраструктура** | <img src="https://cdn.simpleicons.org/docker" width="18" style="vertical-align: middle; margin-right: 4px;"> Docker &nbsp; <img src="https://cdn.simpleicons.org/nginx" width="18" style="vertical-align: middle; margin-right: 4px;"> Nginx &nbsp; <img src="https://cdn.simpleicons.org/githubactions" width="18" style="vertical-align: middle; margin-right: 4px;"> GitHub Actions |
 ---
 ## Разработчики 
-
+<a href="https://github.com/qsor" title="qsor">
+  <img src="https://github.com/qsor.png?size=50" width="50" style="border-radius: 50%; margin-right: 8px;" alt="qsor">
+</a>
+<a href="https://github.com/Ghouloleg" title="qsor">
+  <img src="https://github.com/Ghouloleg.png?size=50" width="50" style="border-radius: 50%; margin-right: 8px;" alt="qsor">
+</a>
 
 ## Запуск
 
