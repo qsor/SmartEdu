@@ -1,7 +1,7 @@
 import {NextFunction, Request, RequestHandler, Response} from "express";
-import {assertNever, Mutable} from "../../shared/index.js";
-import {AuthService} from "../../service/index.js";
-import {Actor} from "../../types/JWT.js";
+import {assertNever, Mutable} from "../shared/index.js";
+import {AuthService} from "../service/index.js";
+import {Actor} from "../schema/types/JWT.js";
 
 declare global {
     namespace Express {

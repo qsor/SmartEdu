@@ -1,5 +1,6 @@
-import {InternalUser, User, UserId} from "../types/User.js";
-import {DeleteUserResult, EditUserResult} from "../results/users.js";
+import {InternalUser, toMyselfUser, User, UserId} from "../schema/types/User.js";
+import {DeleteUserResult, EditUserResult} from "../schema/results/users.js";
+import {RegisterResult} from "../schema/results/auth.js";
 
 export class UserRepository {
     private users: InternalUser[] = []
@@ -10,7 +11,7 @@ export class UserRepository {
         passwordHash: string
         email: string | null
         phoneNumber: string | null
-    }): Promise<CreateUserResult> {
+    }): Promise<RegisterResult> {
         if (params.email !== null && await this.existsByEmail(params.email))
             return { type: 'Conflict', conflictOn: 'Email' }
         if (params.phoneNumber !== null && await this.existsByPhoneNumber(params.phoneNumber))
@@ -27,7 +28,7 @@ export class UserRepository {
 
         this.users.push(user)
 
-        return { type: 'Success', newUser: user }
+        return { type: 'Success', myself: toMyselfUser(user) }
 
         // INSERT INTO users (first_name, last_name, password_hash, email) values (?, ?, ?, ?) RETURNING *
         // throw new Error('Not yet implemented')
@@ -89,7 +90,3 @@ export class UserRepository {
         throw new Error('Not yet implemented')
     }
 }
-
-export type CreateUserResult =
-    | { type: 'Success', newUser: InternalUser }
-    | { type: 'Conflict', conflictOn: 'Email' | 'PhoneNumber' }

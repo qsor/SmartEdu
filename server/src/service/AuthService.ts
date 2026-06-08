@@ -5,7 +5,7 @@ import * as crypto from "node:crypto";
 import {Temporal} from "@js-temporal/polyfill";
 import * as argon2 from "argon2";
 import {AuthRepository, UserRepository} from "../repository/index.js";
-import {UserId} from "../types/User.js";
+import {toMyselfUser, UserId} from "../schema/types/User.js";
 import {
     AccessToken,
     AccessTokenPayload,
@@ -13,14 +13,14 @@ import {
     RefreshTokenPayload,
     SessionId,
     TokenPair
-} from "../types/JWT.js";
+} from "../schema/types/JWT.js";
 import {
     CheckAccessTokenResult,
     CheckRefreshTokenResult,
     LoginResult,
     RefreshTokensResult,
     RegisterResult
-} from "../results/auth.js";
+} from "../schema/results/auth.js";
 import DurationLike = Temporal.DurationLike;
 import Duration = Temporal.Duration;
 import Now = Temporal.Now;
@@ -54,11 +54,11 @@ export class AuthService {
         lastName: string | null
         email: string
         password: string
-    }): Promise<RegisterResult> {
+    }): Promise<[RegisterResult, TokenPair | null]> {
         // Проверка валидности Email
 
         if (!emailRegex.test(email))
-            return {type: 'InvalidEmail'}
+            return [{type: 'InvalidEmail'}, null]
 
         // Создание пользователя
 
@@ -71,73 +71,53 @@ export class AuthService {
         })
 
         if (createUserResult.type === 'Success') {
-            const newUser = createUserResult.newUser
+            const myself = createUserResult.myself
             const sessionId = crypto.randomUUID()
-            const tokenPair = await this.createTokenPair({ sessionId, userId: newUser.id})
+            const tokenPair = await this.createTokenPair({ sessionId, userId: myself.id})
 
-            const createSessionResult = await this.authRepository.createSession({
+            await this.authRepository.createSession({
                 sessionId: sessionId,
-                userId: newUser.id,
+                userId: myself.id,
                 currentRefreshToken: tokenPair.refreshToken,
                 createdAt: Now.instant(),
             })
 
-            if (createSessionResult.type === 'Success') {
-                return {
-                    type: 'Success',
-                    newUser: newUser,
-                    tokenPair: tokenPair,
-                }
-            }
-
-            if (createSessionResult.type === 'InvalidUserId') {
-                // По идее такого никогда не должно произойти: Мы только что создали пользователя с таким id, но authRepository говорит, что такого пользователя нет.
-                // Единственная ситуация когда такое может произойти: Этот пользователь был удалён, пока эта функция выполнялась
-                return {type: 'InvalidEmail'}
-            }
-
-            assertNever(createSessionResult)
+            return [{type: 'Success', myself: myself}, tokenPair]
         }
 
         if (createUserResult.type === 'Conflict') {
-            return {type: 'Conflict', conflictOn: 'Email'}
+            return [{type: 'Conflict', conflictOn: 'Email'}, null]
+        }
+
+        if (createUserResult.type === 'InvalidEmail') {
+            return [{type: 'InvalidEmail'}, null]
         }
 
         assertNever(createUserResult)
     }
 
-    async loginUsingEmail(email: string, password: string): Promise<LoginResult> {
+    async loginUsingEmail(email: string, password: string): Promise<[LoginResult, TokenPair | null]> {
         const user = await this.userRepository.getUserByEmail(email)
         if (user === null) {
-            return {type: 'EmailNotRegistered'}
+            return [{type: 'EmailNotRegistered'}, null]
         }
 
         const isPasswordValid = await argon2.verify(user.passwordHash, password)
 
         if (!isPasswordValid) {
-            return {type: 'InvalidPassword'}
+            return [{type: 'InvalidPassword'}, null]
         }
 
         const sessionId = crypto.randomUUID()
         const tokenPair = await this.createTokenPair({sessionId: sessionId, userId: user.id})
-        const createSessionResult = await this.authRepository.createSession({
+        await this.authRepository.createSession({
             sessionId: sessionId,
             userId: user.id,
             currentRefreshToken: tokenPair.refreshToken,
             createdAt: Now.instant(),
         })
 
-        if (createSessionResult.type === 'Success') {
-            return {type: 'Success', user: user, tokenPair: tokenPair}
-        }
-
-        if (createSessionResult.type === 'InvalidUserId') {
-            // По идее такого никогда не должно произойти: Мы только что смогли найти пользователя с таким id, но authRepository говорит, что такого пользователя нет.
-            // Единственная ситуация когда такое может произойти: Этот пользователь был удалён, пока эта функция выполнялась
-            return {type: 'EmailNotRegistered'}
-        }
-
-        assertNever(createSessionResult)
+        return [{type: 'Success', myself: toMyselfUser(user)}, tokenPair]
     }
 
     async checkAccessToken(accessToken: AccessToken): Promise<CheckAccessTokenResult> {
@@ -184,33 +164,24 @@ export class AuthService {
         assertNever(verifyResult)
     }
 
-    async refreshTokens(refreshToken: RefreshToken): Promise<RefreshTokensResult> {
+    async refreshTokens(refreshToken: RefreshToken): Promise<[RefreshTokensResult, TokenPair | null]> {
         const checkResult = await this.checkRefreshToken(refreshToken)
         if (checkResult.type !== 'Success')
-            return checkResult
+            return [checkResult, null]
         const refreshTokenPayload = checkResult.payload
         const {userId, sessionId} = refreshTokenPayload
 
         const newTokenPair = await this.createTokenPair({userId, sessionId})
 
-        const refreshTokensResult = await this.authRepository.refreshTokens(sessionId, refreshToken, newTokenPair.refreshToken)
+        const result = await this.authRepository.refreshTokens(sessionId, refreshToken, newTokenPair.refreshToken)
 
-        if (refreshTokensResult.type === 'Success') {
-            return {type: 'Success', tokenPair: newTokenPair}
-        }
-
-        if (refreshTokensResult.type === 'InvalidSessionId') {
-            return {type: 'Failed', reason: 'Expired'}
-        }
-
-        if (refreshTokensResult.type === 'CompromisedRefreshToken') {
+        if (result.type === 'CompromisedSession') {
             // Если наша сессия (в частности refresh token) была скомпроментирована, то
             //   нам нужно её сбросить
             await this.authRepository.revokeSession(sessionId)
-            return {type: 'CompromisedSession'}
         }
 
-        assertNever(refreshTokensResult)
+        return [result, newTokenPair]
     }
 
     private async createTokenPair({sessionId, userId}: {

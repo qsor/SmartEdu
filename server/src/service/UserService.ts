@@ -1,6 +1,6 @@
 import {UserRepository} from "../repository/index.js";
 import {User} from "@prisma/client";
-import {InternalUser, UserId} from "../types/User.js";
+import {InternalUser, UserId} from "../schema/types/User.js";
 
 export class UserService {
     constructor(

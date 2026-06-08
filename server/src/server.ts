@@ -5,7 +5,7 @@ import {env} from "./config/env.js";
 import cookieParser from "cookie-parser";
 import {apiRoutes} from "./api/index.js";
 import {bootstrap} from "./bootstrap.js";
-import {createAuthMiddleware} from "./api/middleware/authMiddleware.js";
+import {createAuthMiddleware} from "./middleware/authMiddleware.js";
 
 const {
     authRepository,

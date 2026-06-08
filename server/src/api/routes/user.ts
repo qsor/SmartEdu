@@ -1,14 +1,14 @@
 import {Response, Router} from "express";
 import {AuthService, UserService} from "../../service/index.js";
-import {GetUserResponse} from "../requestsAndResponses/users.js";
-import {toMyselfUser, toOtherUser, UserId} from "../../types/User.js";
+import {toMyselfUser, toOtherUser, UserId} from "../../schema/types/User.js";
+import {GetUserResult} from "../../schema/results/users.js";
 
 export function userRoutes(
     router: Router,
     authService: AuthService,
     userService: UserService,
 ) {
-    router.get('/user/:id', async (req, res: Response<GetUserResponse>) => {
+    router.get('/user/:id', async (req, res: Response<GetUserResult>) => {
         const id: UserId = req.params.id
         const user = await userService.getUser(id)
 

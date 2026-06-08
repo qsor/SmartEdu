@@ -1,8 +1,9 @@
 import * as crypto from "node:crypto";
 import {Temporal} from "@js-temporal/polyfill";
 import Instant = Temporal.Instant;
-import {UserId} from "../types/User.js";
-import {RefreshToken, Session, SessionId} from "../types/JWT.js";
+import {UserId} from "../schema/types/User.js";
+import {RefreshToken, Session, SessionId, TokenPair} from "../schema/types/JWT.js";
+import {RefreshTokensResult} from "../schema/results/auth.js";
 
 export class AuthRepository {
     private sessions: (Session & {
@@ -14,7 +15,7 @@ export class AuthRepository {
         userId: UserId
         currentRefreshToken: RefreshToken
         createdAt: Instant
-    }): Promise<CreateSessionResult> {
+    }): Promise<Session> {
         const session: Session = {
             id: params.sessionId,
             userId: params.userId,
@@ -27,7 +28,7 @@ export class AuthRepository {
         const currentRefreshTokenSHA256 = crypto.hash('sha256', params.currentRefreshToken, 'hex')
         this.sessions.push({...session, refreshTokensSHA256: new Set([currentRefreshTokenSHA256])})
 
-        return {type: 'Success', session}
+        return session
 
         // insert ...
         // throw new Error('Not yet implemented')
@@ -52,7 +53,7 @@ export class AuthRepository {
 
         const session = this.sessions.find(it => it.id === sessionId)
         if (!session)
-            return {type: 'InvalidSessionId'}
+            return {type: 'Failed', reason: 'Expired'}
 
         // todo реализовать в sql
         // const hasOld = session.refreshTokensSHA256.has(oldRefreshTokenSHA256)
@@ -67,12 +68,11 @@ export class AuthRepository {
         // throw new Error('Not yet implemented')
     }
 
-    async revokeSession(sessionId: SessionId): Promise<RevokeSessionResult> {
+    async revokeSession(sessionId: SessionId): Promise<void> {
         const index = this.sessions.findIndex(it => it.id === sessionId)
         if (index === -1)
-            return {type: 'InvalidSessionId'}
+            return
         this.sessions.splice(index, 1)
-        return {type: 'Success'}
 
         // delete ... where id = ...
         // throw new Error('Not yet implemented')
@@ -83,16 +83,3 @@ export class AuthRepository {
         throw new Error('Not yet implemented')
     }
 }
-
-export type CreateSessionResult =
-    | { type: 'Success', session: Session }
-    | { type: 'InvalidUserId' }
-
-export type RefreshTokensResult =
-    | { type: 'Success' }
-    | { type: 'InvalidSessionId' }
-    | { type: 'CompromisedRefreshToken' }
-
-export type RevokeSessionResult =
-    | { type: 'Success' }
-    | { type: 'InvalidSessionId' }
