@@ -19,7 +19,7 @@ import {
     RefreshTokensResult,
     RegisterResult
 } from "../schema/results/auth.js";
-import {JwtService} from "../jwt/JwtService.js";
+import {JwtService} from "./JwtService.js";
 import {AuthRepository} from "../repository/AuthRepository.js";
 import {UserRepository} from "../repository/UserRepository.js";
 import DurationLike = Temporal.DurationLike;

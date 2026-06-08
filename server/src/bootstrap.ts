@@ -2,7 +2,7 @@ import {TextEncoder} from "node:util";
 import {env} from "./config/env.js";
 import {AuthRepository} from "./repository/AuthRepository.js";
 import {UserRepository} from "./repository/UserRepository.js";
-import {JwtService} from "./jwt/JwtService.js";
+import {JwtService} from "./service/JwtService.js";
 import {AuthService} from "./service/AuthService.js";
 import {UserService} from "./service/UserService.js";
 
