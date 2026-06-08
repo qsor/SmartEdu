@@ -1,5 +1,5 @@
-import {DeleteUserResult, EditUserResult} from "../domain/index.js";
 import {InternalUser, User, UserId} from "../types/User.js";
+import {DeleteUserResult, EditUserResult} from "../results/users.js";
 
 export class UserRepository {
     private users: InternalUser[] = []

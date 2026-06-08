@@ -9,7 +9,6 @@ import {createAuthMiddleware} from "./api/middleware/authMiddleware.js";
 
 const {
     authRepository,
-    moderationRepository,
     userRepository,
     accessJwtService,
     refreshJwtService,

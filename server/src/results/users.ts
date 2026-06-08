@@ -1,4 +1,4 @@
-import {InternalUser} from "../../types/User.js";
+import {InternalUser} from "../types/User.js";
 
 export type EditUserResult =
     | { type: 'Success', newUser: InternalUser }

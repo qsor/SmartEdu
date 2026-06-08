@@ -101,11 +101,6 @@ export function authRoutes(
                 .send({type: 'InvalidEmail'})
         }
 
-        if (result.type === 'Moderation') {
-            throw new Error('Мы пока не хотим отдавать этот результат в API чтобы не нагружать его. ' +
-                'В любом случае, модерация пока не реализована.')
-        }
-
         assertNever(result)
     })
 

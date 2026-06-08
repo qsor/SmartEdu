@@ -1,20 +1,10 @@
-import {
-    CheckAccessTokenResult,
-    CheckRefreshTokenResult,
-    LoginUsingEmailResult,
-    RegisterUsingEmailResult,
-    RefreshTokensResult,
-} from "../domain/index.js";
 import {JwtService} from "../jwt/index.js";
 import {JWTPayload} from "jose";
 import {assertNever} from "../shared/index.js";
 import * as crypto from "node:crypto";
 import {Temporal} from "@js-temporal/polyfill";
 import * as argon2 from "argon2";
-import {AuthRepository, ModerationRepository, UserRepository} from "../repository/index.js";
-import DurationLike = Temporal.DurationLike;
-import Duration = Temporal.Duration;
-import Now = Temporal.Now;
+import {AuthRepository, UserRepository} from "../repository/index.js";
 import {UserId} from "../types/User.js";
 import {
     AccessToken,
@@ -24,6 +14,16 @@ import {
     SessionId,
     TokenPair
 } from "../types/JWT.js";
+import {
+    CheckAccessTokenResult,
+    CheckRefreshTokenResult,
+    LoginResult,
+    RefreshTokensResult,
+    RegisterResult
+} from "../results/auth.js";
+import DurationLike = Temporal.DurationLike;
+import Duration = Temporal.Duration;
+import Now = Temporal.Now;
 
 const emailRegex = RegExp(/(?:[a-z0-9!#$%&'*+\x2f=?^_`\x7b-\x7d~\x2d]+(?:\.[a-z0-9!#$%&'*+\x2f=?^_`\x7b-\x7d~\x2d]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9\x2d]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9\x2d]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9\x2d]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/)
 
@@ -36,7 +36,6 @@ export class AuthService {
     constructor(
         private readonly authRepository: AuthRepository,
         private readonly userRepository: UserRepository,
-        private readonly moderationRepository: ModerationRepository,
         config: {
             accessJwtService: JwtService,
             refreshJwtService: JwtService,
@@ -55,21 +54,7 @@ export class AuthService {
         lastName: string | null
         email: string
         password: string
-    }): Promise<RegisterUsingEmailResult> {
-        // Модерация
-
-        const firstNameAllowed = await this.moderationRepository.isFirstNameAllowed(firstName)
-        const lastNameAllowed = await this.moderationRepository.isLastNameAllowed(lastName)
-
-        if (!firstNameAllowed || !lastNameAllowed) {
-            return {
-                type: 'Moderation',
-                message: `Sorry, but you can't use bad words in your first and last names.`,
-                shouldUseDifferentFirstName: !firstNameAllowed,
-                shouldUseDifferentLastName: !lastNameAllowed,
-            }
-        }
-
+    }): Promise<RegisterResult> {
         // Проверка валидности Email
 
         if (!emailRegex.test(email))
@@ -121,15 +106,10 @@ export class AuthService {
         assertNever(createUserResult)
     }
 
-    async loginUsingEmail(email: string, password: string): Promise<LoginUsingEmailResult> {
+    async loginUsingEmail(email: string, password: string): Promise<LoginResult> {
         const user = await this.userRepository.getUserByEmail(email)
         if (user === null) {
             return {type: 'EmailNotRegistered'}
-        }
-
-        if (user.passwordHash === null) {
-            // Если у пользователя не установлен пароль, то мы считаем, что любой пароль неправильный
-            return {type: 'InvalidPassword'}
         }
 
         const isPasswordValid = await argon2.verify(user.passwordHash, password)
