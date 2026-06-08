@@ -1,12 +1,13 @@
-import {DeleteUserResult, EditUserResult, User, UserId} from "../domain/index.js";
+import {DeleteUserResult, EditUserResult} from "../domain/index.js";
+import {InternalUser, User, UserId} from "../types/User.js";
 
 export class UserRepository {
-    private users: User[] = []
+    private users: InternalUser[] = []
 
     async createUser(params: {
         firstName: string
         lastName: string | null
-        passwordHash: string | null
+        passwordHash: string
         email: string | null
         phoneNumber: string | null
     }): Promise<CreateUserResult> {
@@ -15,7 +16,7 @@ export class UserRepository {
         if (params.phoneNumber !== null && await this.existsByPhoneNumber(params.phoneNumber))
             return { type: 'Conflict', conflictOn: 'PhoneNumber' }
 
-        const user: User = {
+        const user: InternalUser = {
             id: crypto.randomUUID(),
             firstName: params.firstName,
             lastName: params.lastName,
@@ -53,21 +54,21 @@ export class UserRepository {
         // throw new Error('Not yet implemented')
     }
 
-    async getUser(id: UserId): Promise<User | null> {
+    async getUser(id: UserId): Promise<InternalUser | null> {
         return this.users.find(it => it.id === id) ?? null
 
         // SELECT FROM users WHERE id = ?
         // throw new Error('Not yet implemented')
     }
 
-    async getUserByEmail(email: string): Promise<User | null> {
+    async getUserByEmail(email: string): Promise<InternalUser | null> {
         return this.users.find(it => it.email === email) ?? null
 
         // SELECT FROM users WHERE email = ?
         // throw new Error('Not yet implemented')
     }
 
-    async getUserByPhoneNumber(phoneNumber: string): Promise<User | null> {
+    async getUserByPhoneNumber(phoneNumber: string): Promise<InternalUser | null> {
         return this.users.find(it => it.phoneNumber === phoneNumber) ?? null
 
         // SELECT FROM users WHERE phone_number = ?
@@ -90,5 +91,5 @@ export class UserRepository {
 }
 
 export type CreateUserResult =
-    | { type: 'Success', newUser: User }
+    | { type: 'Success', newUser: InternalUser }
     | { type: 'Conflict', conflictOn: 'Email' | 'PhoneNumber' }

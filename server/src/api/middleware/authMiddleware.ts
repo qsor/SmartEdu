@@ -1,7 +1,7 @@
 import {NextFunction, Request, RequestHandler, Response} from "express";
-import {Actor} from "../../domain/index.js";
 import {assertNever, Mutable} from "../../shared/index.js";
 import {AuthService} from "../../service/index.js";
+import {Actor} from "../../types/JWT.js";
 
 declare global {
     namespace Express {
@@ -25,7 +25,7 @@ async function authMiddleware(
 ) {
     const authorizationHeader = req.headers.authorization
     if (authorizationHeader === undefined) {
-        req.actor = {type: 'Guest', userId: undefined, sessionId: undefined}
+        req.actor = {isGuest: true, isAuthenticated: false, userId: undefined, sessionId: undefined}
         return next()
     }
 
@@ -41,7 +41,7 @@ async function authMiddleware(
     const result = await authService.checkAccessToken(token)
 
     if (result.type === 'Success') {
-        req.actor = {type: 'User', sessionId: result.payload.sessionId, userId: result.payload.userId}
+        req.actor = {isGuest: false, isAuthenticated: true, sessionId: result.payload.sessionId, userId: result.payload.userId}
         return next()
     }
 

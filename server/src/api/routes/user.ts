@@ -1,8 +1,7 @@
 import {Response, Router} from "express";
 import {AuthService, UserService} from "../../service/index.js";
-import {UserId} from "../../domain/index.js";
 import {GetUserResponse} from "../requestsAndResponses/users.js";
-import {toMyselfDto, toUserDto} from "../mappers/users.js";
+import {toMyselfUser, toOtherUser, UserId} from "../../types/User.js";
 
 export function userRoutes(
     router: Router,
@@ -22,15 +21,13 @@ export function userRoutes(
         if (isMyself) {
             return res.status(200).send({
                 type: 'Success',
-                isMyself: true,
-                user: toMyselfDto(user),
+                user: toMyselfUser(user),
             })
         }
 
         return res.status(200).send({
             type: 'Success',
-            isMyself: false,
-            user: toUserDto(user),
+            user: toOtherUser(user),
         })
     })
 }

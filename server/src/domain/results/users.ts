@@ -1,7 +1,7 @@
-import {User} from "../types/users.js";
+import {InternalUser} from "../../types/User.js";
 
 export type EditUserResult =
-    | { type: 'Success', newUser: User }
+    | { type: 'Success', newUser: InternalUser }
     | { type: 'InvalidUserId' }
 
 export type DeleteUserResult =

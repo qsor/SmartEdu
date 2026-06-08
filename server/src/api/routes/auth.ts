@@ -9,10 +9,10 @@ import {
     RefreshTokensResponse
 } from "../requestsAndResponses/auth.js";
 import {assertNever} from "../../shared/index.js";
-import {toMyselfDto} from "../mappers/users.js";
 import {Temporal} from "@js-temporal/polyfill";
 import Duration = Temporal.Duration;
 import Now = Temporal.Now;
+import {toMyselfUser} from "../../types/User.js";
 
 const REFRESH_TOKEN_COOKIE = 'refreshToken' as const
 // Если клиент получает хедер X-New-Access-Token, то он должен обновить его значение (в localStorage)
@@ -42,7 +42,7 @@ export function authRoutes(
                 .header(NEW_ACCESS_TOKEN_HEADER, result.tokenPair.accessToken)
                 .send({
                     type: 'Success',
-                    myself: toMyselfDto(result.user),
+                    myself: toMyselfUser(result.user),
                 })
         }
 
@@ -82,7 +82,7 @@ export function authRoutes(
                 .header(NEW_ACCESS_TOKEN_HEADER, result.tokenPair.accessToken)
                 .send({
                     type: 'Success',
-                    myself: toMyselfDto(result.newUser),
+                    myself: toMyselfUser(result.newUser),
                 })
         }
 

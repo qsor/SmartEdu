@@ -1,10 +1,10 @@
-import {AccessTokenPayload, RefreshTokenPayload, TokenPair} from "../types/auth.js";
-import {User} from "../types/users.js";
+import {InternalUser} from "../../types/User.js";
+import {AccessTokenPayload, RefreshTokenPayload, TokenPair} from "../../types/JWT.js";
 
 // ------ Регистрация и авторизация ------
 
 export type RegisterResult =
-    | { type: 'Success', newUser: User, tokenPair: TokenPair }
+    | { type: 'Success', newUser: InternalUser, tokenPair: TokenPair }
     // Например: * Не удалось зарегистрироваться: Email уже занят *
     | { type: 'Conflict', conflictOn: 'Email' | 'PhoneNumber' }
     // Пример, что на уровне домена могут быть дополнительные ошибки при регистрации, отличные от CreateUserUser внутри репозитория.
@@ -18,7 +18,7 @@ export type RegisterResult =
     }
 
 export type LoginResult =
-    | { type: 'Success', user: User, tokenPair: TokenPair }
+    | { type: 'Success', user: InternalUser, tokenPair: TokenPair }
 
 export type RegisterUsingEmailResult =
     | RegisterResult

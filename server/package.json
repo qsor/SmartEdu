@@ -9,7 +9,7 @@
     "dev": "dotenv -- tsx watch src/server.ts",
     "build": "npm run prisma:generate && tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "prisma:generate": "prisma generate",
+    "tsc": "tsc --noEmit",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",

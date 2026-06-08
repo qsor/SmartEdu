@@ -1,6 +1,6 @@
-import {MyselfDto} from "../index.js";
-
 // ------ Вход в аккаунт ------
+
+import {MyselfUser} from "../../types/User.js";
 
 export interface LoginRequestBody {
     email: string
@@ -8,7 +8,7 @@ export interface LoginRequestBody {
 }
 
 export type LoginResponse =
-    | { type: 'Success', myself: MyselfDto }
+    | { type: 'Success', myself: MyselfUser }
     | { type: 'EmailNotRegistered' }
     | { type: 'InvalidPassword' }
 
@@ -22,7 +22,7 @@ export interface RegisterRequestBody {
 }
 
 export type RegisterResponse =
-    | { type: 'Success', myself: MyselfDto }
+    | { type: 'Success', myself: MyselfUser }
     // * Этот email уже зарегистрирован *
     | { type: 'Conflict', conflictOn: 'Email' }
     // * Это некорректный email адрес *

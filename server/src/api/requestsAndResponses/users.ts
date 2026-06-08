@@ -1,6 +1,5 @@
-import {MyselfDto, UserDto} from "../index.js";
+import {User} from "../../types/User.js";
 
 export type GetUserResponse =
-    | { type: 'Success', isMyself: false, user: UserDto }
-    | { type: 'Success', isMyself: true, user: MyselfDto }
+    | { type: 'Success', user: User }
     | { type: 'InvalidUserId' }
