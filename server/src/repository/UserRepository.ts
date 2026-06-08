@@ -1,5 +1,6 @@
-import {InternalUser, UserId} from "../schema/types/User.js";
+import {InternalUser, toMyselfUser, UserId} from "../schema/types/User.js";
 import {CreateUserResult} from "../schema/results/auth.js";
+import {EditUserResponse} from "../schema/responses/user.js";
 
 export class UserRepository {
     private users: InternalUser[] = []
@@ -79,9 +80,25 @@ export class UserRepository {
         firstName?: string
         lastName?: string | null
         email?: string | null
-    }): Promise<void> {
+    }): Promise<EditUserResponse> {
+        if (fields.email) {
+            if (await this.existsByEmail(fields.email)) {
+                return {status: 'EmailAlreadyTaken'}
+            }
+        }
+
+        const index = this.users.findIndex(it => it.id === id)
+        if (index === -1)
+            throw new Error('User not found')
+
+        const [user] = this.users.splice(index, 1)
+        const newUser: InternalUser = {...user, ...fields}
+        this.users.push(newUser)
+
+        return {status: 'Success', myself: toMyselfUser(newUser)}
+
         // UPDATE users SET ... = ... WHERE id = ?
-        throw new Error('Not yet implemented')
+        // throw new Error('Not yet implemented')
     }
 
     async deleteUser(id: UserId): Promise<void> {
