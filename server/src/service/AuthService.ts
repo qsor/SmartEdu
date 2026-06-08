@@ -3,7 +3,7 @@ import {assertNever} from "../shared/index.js";
 import * as crypto from "node:crypto";
 import {Temporal} from "@js-temporal/polyfill";
 import * as argon2 from "argon2";
-import {toMyselfUser, UserId} from "../schema/types/User.js";
+import {UserId} from "../schema/types/User.js";
 import {
     AccessToken,
     AccessTokenPayload,
@@ -55,11 +55,11 @@ export class AuthService {
         lastName: string | null
         email: string
         password: string
-    }): Promise<[RegisterResult, TokenPair | null]> {
+    }): Promise<RegisterResult> {
         // Проверка валидности Email
 
         if (!emailRegex.test(email))
-            return [{type: 'InvalidEmail'}, null]
+            return {type: 'InvalidEmail'}
 
         // Создание пользователя
 
@@ -72,41 +72,37 @@ export class AuthService {
         })
 
         if (createUserResult.type === 'Success') {
-            const myself = createUserResult.myself
+            const user = createUserResult.user
             const sessionId = crypto.randomUUID()
-            const tokenPair = await this.createTokenPair({ sessionId, userId: myself.id})
+            const tokenPair = await this.createTokenPair({ sessionId, userId: user.id})
 
             await this.authRepository.createSession({
                 sessionId: sessionId,
-                userId: myself.id,
+                userId: user.id,
                 currentRefreshToken: tokenPair.refreshToken,
                 createdAt: Now.instant(),
             })
 
-            return [{type: 'Success', myself: myself}, tokenPair]
+            return {type: 'Success', user: user, newTokenPair: tokenPair}
         }
 
         if (createUserResult.type === 'Conflict') {
-            return [{type: 'Conflict', conflictOn: 'Email'}, null]
-        }
-
-        if (createUserResult.type === 'InvalidEmail') {
-            return [{type: 'InvalidEmail'}, null]
+            return {type: 'Conflict', conflictOn: 'Email'}
         }
 
         assertNever(createUserResult)
     }
 
-    async loginUsingEmail(email: string, password: string): Promise<[LoginResult, TokenPair | null]> {
+    async loginUsingEmail(email: string, password: string): Promise<LoginResult> {
         const user = await this.userRepository.getUserByEmail(email)
         if (user === null) {
-            return [{type: 'EmailNotRegistered'}, null]
+            return {type: 'EmailNotRegistered'}
         }
 
         const isPasswordValid = await argon2.verify(user.passwordHash, password)
 
         if (!isPasswordValid) {
-            return [{type: 'InvalidPassword'}, null]
+            return {type: 'InvalidPassword'}
         }
 
         const sessionId = crypto.randomUUID()
@@ -118,7 +114,7 @@ export class AuthService {
             createdAt: Now.instant(),
         })
 
-        return [{type: 'Success', myself: toMyselfUser(user)}, tokenPair]
+        return {type: 'Success', user: user, newTokenPair: tokenPair}
     }
 
     async checkAccessToken(accessToken: AccessToken): Promise<CheckAccessTokenResult> {
@@ -165,16 +161,16 @@ export class AuthService {
         assertNever(verifyResult)
     }
 
-    async refreshTokens(refreshToken: RefreshToken): Promise<[RefreshTokensResult, TokenPair | null]> {
+    async refreshTokens(refreshToken: RefreshToken): Promise<RefreshTokensResult> {
         const checkResult = await this.checkRefreshToken(refreshToken)
         if (checkResult.type !== 'Success')
-            return [checkResult, null]
+            return checkResult
         const refreshTokenPayload = checkResult.payload
         const {userId, sessionId} = refreshTokenPayload
 
         const newTokenPair = await this.createTokenPair({userId, sessionId})
 
-        const result = await this.authRepository.refreshTokens(sessionId, refreshToken, newTokenPair.refreshToken)
+        const result = await this.authRepository.refreshTokens(sessionId, refreshToken, newTokenPair)
 
         if (result.type === 'CompromisedSession') {
             // Если наша сессия (в частности refresh token) была скомпроментирована, то
@@ -182,7 +178,7 @@ export class AuthService {
             await this.authRepository.revokeSession(sessionId)
         }
 
-        return [result, newTokenPair]
+        return result
     }
 
     private async createTokenPair({sessionId, userId}: {

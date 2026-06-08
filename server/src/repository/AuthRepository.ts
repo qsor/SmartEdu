@@ -1,7 +1,7 @@
 import * as crypto from "node:crypto";
 import {Temporal} from "@js-temporal/polyfill";
 import {UserId} from "../schema/types/User.js";
-import {RefreshToken, Session, SessionId} from "../schema/types/JWT.js";
+import {RefreshToken, Session, SessionId, TokenPair} from "../schema/types/JWT.js";
 import {RefreshTokensResult} from "../schema/results/auth.js";
 import Instant = Temporal.Instant;
 
@@ -47,9 +47,9 @@ export class AuthRepository {
         // throw new Error('Not yet implemented')
     }
 
-    async refreshTokens(sessionId: SessionId, oldRefreshToken: RefreshToken, newRefreshToken: RefreshToken): Promise<RefreshTokensResult> {
+    async refreshTokens(sessionId: SessionId, oldRefreshToken: RefreshToken, newTokenPair: TokenPair): Promise<RefreshTokensResult> {
         const oldRefreshTokenSHA256 = crypto.hash('sha256', oldRefreshToken, 'hex')
-        const newRefreshTokenSHA256 = crypto.hash('sha256', newRefreshToken, 'hex')
+        const newRefreshTokenSHA256 = crypto.hash('sha256', newTokenPair.refreshToken, 'hex')
 
         const session = this.sessions.find(it => it.id === sessionId)
         if (!session)
@@ -62,7 +62,7 @@ export class AuthRepository {
 
         session.refreshTokensSHA256.delete(oldRefreshTokenSHA256)
         session.refreshTokensSHA256.add(newRefreshTokenSHA256)
-        return {type: 'Success'}
+        return {type: 'Success', newTokenPair}
 
         // update set current_refresh_token = currentRefreshTokenSHA256 where ...
         // throw new Error('Not yet implemented')

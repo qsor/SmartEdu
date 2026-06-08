@@ -25,17 +25,20 @@ export function authRoutes(
         refreshTokenCookieLifetime: Duration
     }
 ) {
-    router.post('/auth/login', async (req, res: Response<LoginResult>) => {
+    router.post('/auth/login', async (req, res: Response<LoginResponse>) => {
         const body = req.body as LoginRequestBody // todo add zod validation
 
-        const [result, tokenPair] = await authService.loginUsingEmail(body.email, body.password)
+        const result = await authService.loginUsingEmail(body.email, body.password)
 
         if (result.type === 'Success') {
             return res
                 .status(200)
-                .cookie(...refreshTokenCookie(config, tokenPair!.refreshToken))
-                .header(NEW_ACCESS_TOKEN_HEADER, tokenPair!.accessToken)
-                .send(result)
+                .cookie(...refreshTokenCookie(config, result.newTokenPair.refreshToken))
+                .header(NEW_ACCESS_TOKEN_HEADER, result.newTokenPair.accessToken)
+                .send({
+                    status: 'Success',
+                    myself: toMyselfUser(result.user),
+                })
         }
 
         if (result.type === 'EmailNotRegistered') {
@@ -53,10 +56,10 @@ export function authRoutes(
         assertNever(result)
     })
 
-    router.post('/auth/register', async (req, res: Response<RegisterResult>) => {
+    router.post('/auth/register', async (req, res: Response<RegisterResponse>) => {
         const body = req.body as RegisterRequestBody // todo add zod validation
 
-        const [result, tokenPair] = await authService.registerUsingEmail({
+        const result = await authService.registerUsingEmail({
             firstName: body.firstName,
             lastName: body.lastName,
             email: body.email,
@@ -66,9 +69,12 @@ export function authRoutes(
         if (result.type === 'Success') {
             return res
                 .status(200)
-                .cookie(...refreshTokenCookie(config, tokenPair!.refreshToken))
-                .header(NEW_ACCESS_TOKEN_HEADER, tokenPair!.accessToken)
-                .send(result)
+                .cookie(...refreshTokenCookie(config, result.newTokenPair.refreshToken))
+                .header(NEW_ACCESS_TOKEN_HEADER, result.newTokenPair.accessToken)
+                .send({
+                    status: 'Success',
+                    myself: toMyselfUser(result.user),
+                })
         }
 
         if (result.type === 'Conflict') {
@@ -108,13 +114,13 @@ export function authRoutes(
             })
         }
 
-        const [result, tokenPair] = await authService.refreshTokens(refreshToken)
+        const result = await authService.refreshTokens(refreshToken)
 
         if (result.type === 'Success') {
             return res
                 .status(200)
-                .cookie(...refreshTokenCookie(config, tokenPair!.refreshToken))
-                .header(NEW_ACCESS_TOKEN_HEADER, tokenPair!.accessToken)
+                .cookie(...refreshTokenCookie(config, result.newTokenPair.refreshToken))
+                .header(NEW_ACCESS_TOKEN_HEADER, result.newTokenPair.accessToken)
                 .send(result)
         }
 

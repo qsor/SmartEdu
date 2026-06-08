@@ -1,6 +1,5 @@
-import {InternalUser, toMyselfUser, UserId} from "../schema/types/User.js";
-import {DeleteUserResult, EditUserResult} from "../schema/results/users.js";
-import {RegisterResult} from "../schema/results/auth.js";
+import {InternalUser, UserId} from "../schema/types/User.js";
+import {CreateUserResult} from "../schema/results/auth.js";
 
 export class UserRepository {
     private users: InternalUser[] = []
@@ -11,7 +10,7 @@ export class UserRepository {
         passwordHash: string
         email: string | null
         phoneNumber: string | null
-    }): Promise<RegisterResult> {
+    }): Promise<CreateUserResult> {
         if (params.email !== null && await this.existsByEmail(params.email))
             return { type: 'Conflict', conflictOn: 'Email' }
         if (params.phoneNumber !== null && await this.existsByPhoneNumber(params.phoneNumber))
@@ -28,7 +27,7 @@ export class UserRepository {
 
         this.users.push(user)
 
-        return { type: 'Success', myself: toMyselfUser(user) }
+        return { type: 'Success', user: user }
 
         // INSERT INTO users (first_name, last_name, password_hash, email) values (?, ?, ?, ?) RETURNING *
         // throw new Error('Not yet implemented')
@@ -80,12 +79,12 @@ export class UserRepository {
         firstName?: string
         lastName?: string | null
         email?: string | null
-    }): Promise<EditUserResult> {
+    }): Promise<void> {
         // UPDATE users SET ... = ... WHERE id = ?
         throw new Error('Not yet implemented')
     }
 
-    async deleteUser(id: UserId): Promise<DeleteUserResult> {
+    async deleteUser(id: UserId): Promise<void> {
         // DELETE FROM users WHERE id = ?
         throw new Error('Not yet implemented')
     }
