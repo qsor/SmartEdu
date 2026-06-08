@@ -12,7 +12,7 @@ export const Header: React.FC<HeaderProps> = ({ avatar }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="fixed left-[230px] right-0 top-0 z-20 h-[56px] items-center bg-orange-500 flex items-center px-6">
+    <header className="fixed left-[230px] right-0 top-0 z-20 h-[56px] bg-orange-500 flex items-center px-6">
       <div className="mx-auto w-full max-w-[520px]">
         <SearchInput />
       </div>
