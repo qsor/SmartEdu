@@ -80,6 +80,7 @@ function LoginScreen() {
           </label>
           <InputText
             id="email"
+            name="email"
             type="email"
             placeholder="username@gmail.com"
             value={form.email}
@@ -97,6 +98,7 @@ function LoginScreen() {
           </label>
           <InputText
             id="password"
+            name="password"
             type="password"
             placeholder="Password"
             value={form.password}
