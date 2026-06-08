@@ -1,6 +1,6 @@
 import React from 'react';
 import StarRatingAdvanced from './StarRatingAdvanced';
-
+import styles from '../styles/catalog/CatalogCourseCard.module.css';
 interface CatalogCourseCardProps {
   title?: string;
   description?: string;
@@ -21,29 +21,29 @@ const CatalogCourseCard: React.FC<CatalogCourseCardProps> = ({
   return (
     <div 
       onClick={onCardClick}
-      className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flex flex-col h-full"
+      className={styles.card}
     >
       {/* Заглушка под картинку (верхняя часть) */}
-      <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+      <div className={styles.imageContainer}>
         {imagePlaceholder && (
-          <span className="text-gray-400 text-sm">Обложка курса</span>
+          <span className={styles.imagePlaceholderText}>Обложка курса</span>
         )}
       </div>
 
       {/* Контентная часть */}
-      <div className="p-4 flex flex-col flex-grow">
+      <div className={styles.contentContainer}>
         {/* Заголовок */}
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
+        <h3 className={styles.title}>
           {title}
         </h3>
 
         {/* Описание с line-clamp (2 строчки) */}
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+        <p className={styles.description}>
           {description}
         </p>
 
         {/* Рейтинг с половинчатыми звездами */}
-        <div className="mb-3">
+        <div className={styles.ratingContainer}>
           <StarRatingAdvanced 
             rating={rating} 
             size="w-5 h-5" 
@@ -52,8 +52,8 @@ const CatalogCourseCard: React.FC<CatalogCourseCardProps> = ({
         </div>
 
         {/* Блок цены в правом нижнем углу */}
-        <div className="flex justify-end mt-auto pt-2">
-          <span className="text-xl font-bold text-gray-900">
+        <div className={styles.priceContainer}>
+          <span className={styles.price}>
             {price.toLocaleString()} ₽
           </span>
         </div>

@@ -1,0 +1,37 @@
+/* Стили для карточки каталога курсов */
+
+.card {
+  @apply bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flex flex-col h-full;
+}
+
+.imageContainer {
+  @apply w-full h-48 bg-gray-200 flex items-center justify-center;
+}
+
+.imagePlaceholderText {
+  @apply text-gray-400 text-sm;
+}
+
+.contentContainer {
+  @apply p-4 flex flex-col flex-grow;
+}
+
+.title {
+  @apply text-lg font-semibold text-gray-900 mb-2 line-clamp-1;
+}
+
+.description {
+  @apply text-gray-600 text-sm mb-3 line-clamp-2;
+}
+
+.ratingContainer {
+  @apply mb-3;
+}
+
+.priceContainer {
+  @apply flex justify-end mt-auto pt-2;
+}
+
+.price {
+  @apply text-xl font-bold text-gray-900;
+}

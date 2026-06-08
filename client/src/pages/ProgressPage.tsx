@@ -1,14 +1,15 @@
+import React from "react";
 import { Sidebar } from "../components/Sidebar";
-import DashboardCourseCard from "../components/DashboardCourseCard";
+import ProgressCourseCard from "../components/ProgressCourseCard";
 import Header from "@/components/Header";
-
+import styles from "../styles/progress/ProgressPage.module.css";
 interface Course {
   id: number;
   title: string;
   progress: number;
 }
 
-export const Dashboard: React.FC = ({}) => {
+const ProgressPage: React.FC = ({}) => {
   const name = "NoName";
   // Данные пользователя (позже из Redux/API)
   const mainCourse: Course = {
@@ -25,19 +26,19 @@ export const Dashboard: React.FC = ({}) => {
   ];
 
   return (
-    <div className="h-screen overflow-hidden">
+    <div className={styles.pageContainer}>
       <Sidebar />
 
-      <div className="ml-[230px] flex h-screen flex-col">
+      <div className={styles.mainLayout}>
         <Header />
-        <main className="mt-[56px] h-[calc(100vh-56px)] overflow-y-auto py-6 px-12">
-          <h2 className="mb-10 text-3xl font-bold text-gray-900">
+        <main className={styles.mainContent}>
+          <h2 className={styles.welcomeTitle}>
             Привет, {name}!
           </h2>
 
           <section>
-            <h3 className="mb-6 text-2xl font-bold">Продолжить курс</h3>
-            <DashboardCourseCard
+            <h3 className={styles.sectionTitle}>Продолжить курс</h3>
+            <ProgressCourseCard
               key={mainCourse.id}
               title={mainCourse.title}
               progress={mainCourse.progress}
@@ -46,10 +47,10 @@ export const Dashboard: React.FC = ({}) => {
           </section>
 
           <section>
-            <h3 className="my-6 text-2xl font-bold">Мои курсы</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <h3 className={styles.sectionTitleWithMargin}>Мои курсы</h3>
+            <div className={styles.coursesGrid}>
               {myCourses.map((course) => (
-                <DashboardCourseCard
+                <ProgressCourseCard
                   key={course.id}
                   title={course.title}
                   progress={course.progress}
@@ -63,4 +64,4 @@ export const Dashboard: React.FC = ({}) => {
   );
 };
 
-export default Dashboard;
+export default ProgressPage;
