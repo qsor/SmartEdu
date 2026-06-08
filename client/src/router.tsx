@@ -1,8 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import LoginPage from "@/pages/LoginPage";
-import Dashboard from "@/pages/Dashboard";
 import Catalog from "@/pages/Catalog";
+import ProgressPage from "@/pages/ProgressPage";
 
 export const router = createBrowserRouter([
   {
@@ -18,8 +18,8 @@ export const router = createBrowserRouter([
         element: <Catalog />,
       },
       {
-        path: "/dashboard",
-        element: <Dashboard />,
+        path: "/progress",
+        element: <ProgressPage />,
       },
     ],
   },
