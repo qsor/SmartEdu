@@ -53,9 +53,10 @@ export class AuthRepository {
         if (!session)
             return {type: 'InvalidSessionId'}
 
-        const hasOld = session.refreshTokensSHA256.has(oldRefreshTokenSHA256)
-        if (!hasOld)
-            return {type: 'CompromisedRefreshToken'}
+        // todo реализовать в sql
+        // const hasOld = session.refreshTokensSHA256.has(oldRefreshTokenSHA256)
+        // if (!hasOld)
+        //     return {type: 'CompromisedRefreshToken'}
 
         session.refreshTokensSHA256.delete(oldRefreshTokenSHA256)
         session.refreshTokensSHA256.add(newRefreshTokenSHA256)

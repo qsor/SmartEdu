@@ -27,6 +27,7 @@ expressApp.use(
     cors({
         origin: env.clientOrigin,
         credentials: true,
+        exposedHeaders: ['X-New-Access-Token', 'X-Delete-Access-Token']
     }),
 )
 
