@@ -12,9 +12,9 @@ export class UserRepository {
         phoneNumber: string | null
     }): Promise<CreateUserResult> {
         if (params.email !== null && await this.existsByEmail(params.email))
-            return { type: 'Conflict', conflictOn: 'Email' }
+            return { status: 'Conflict', conflictOn: 'Email' }
         if (params.phoneNumber !== null && await this.existsByPhoneNumber(params.phoneNumber))
-            return { type: 'Conflict', conflictOn: 'PhoneNumber' }
+            return { status: 'Conflict', conflictOn: 'PhoneNumber' }
 
         const user: InternalUser = {
             id: crypto.randomUUID(),
@@ -27,7 +27,7 @@ export class UserRepository {
 
         this.users.push(user)
 
-        return { type: 'Success', user: user }
+        return { status: 'Success', user: user }
 
         // INSERT INTO users (first_name, last_name, password_hash, email) values (?, ?, ?, ?) RETURNING *
         // throw new Error('Not yet implemented')

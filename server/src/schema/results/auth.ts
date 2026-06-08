@@ -5,36 +5,36 @@ import {AccessTokenPayload, RefreshTokenPayload, TokenPair} from "../types/JWT.j
 
 // Это результат СОЗДАНИЯ пользователя в базе данных
 export type CreateUserResult =
-    | { type: 'Success', user: InternalUser }
+    | { status: 'Success', user: InternalUser }
     // * Не удалось зарегистрироваться: Email уже занят *
-    | { type: 'Conflict', conflictOn: 'Email' | 'PhoneNumber' }
+    | { status: 'Conflict', conflictOn: 'Email' | 'PhoneNumber' }
 
 // Это результат РЕГИСТРАЦИИ пользователя в сервисе
 export type RegisterResult =
-    | { type: 'Success', user: InternalUser, newTokenPair: TokenPair }
+    | { status: 'Success', user: InternalUser, newTokenPair: TokenPair }
     // * Не удалось зарегистрироваться: Email уже занят *
-    | { type: 'Conflict', conflictOn: 'Email' | 'PhoneNumber' }
+    | { status: 'Conflict', conflictOn: 'Email' | 'PhoneNumber' }
     // * Некорректный email адрес *
-    | { type: 'InvalidEmail' }
+    | { status: 'InvalidEmail' }
 
 export type LoginResult =
-    | { type: 'Success', user: InternalUser, newTokenPair: TokenPair }
+    | { status: 'Success', user: InternalUser, newTokenPair: TokenPair }
     // * Этот email не зарегистрирован *
-    | { type: 'EmailNotRegistered' }
+    | { status: 'EmailNotRegistered' }
     // * Неправильный пароль *
-    | { type: 'InvalidPassword' }
+    | { status: 'InvalidPassword' }
 
 // ------ JWT Tokens ------
 
 export type CheckAccessTokenResult =
-    | { type: 'Success', payload: AccessTokenPayload }
-    | { type: 'Failed', reason: 'Expired' | 'VerificationFailed' }
+    | { status: 'Success', payload: AccessTokenPayload }
+    | { status: 'Failed', reason: 'Expired' | 'VerificationFailed' }
 
 export type CheckRefreshTokenResult =
-    | { type: 'Success', payload: RefreshTokenPayload }
-    | { type: 'Failed', reason: 'Expired' | 'VerificationFailed' }
+    | { status: 'Success', payload: RefreshTokenPayload }
+    | { status: 'Failed', reason: 'Expired' | 'VerificationFailed' }
 
 export type RefreshTokensResult =
-    | { type: 'Success', newTokenPair: TokenPair }
-    | { type: 'Failed', reason: 'Expired' | 'VerificationFailed', message?: string }
-    | { type: 'CompromisedSession' }
+    | { status: 'Success', newTokenPair: TokenPair }
+    | { status: 'Failed', reason: 'Expired' | 'VerificationFailed', message?: string }
+    | { status: 'CompromisedSession' }

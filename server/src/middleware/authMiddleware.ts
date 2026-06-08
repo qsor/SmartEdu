@@ -32,7 +32,7 @@ async function authMiddleware(
     const [type, token] = authorizationHeader.split(' ')
     if (type !== 'Bearer' || token === undefined) {
         res.status(400).send({
-            type: 'Unauthenticated',
+            status: 'Unauthenticated',
             message: 'Invalid Authorization header. Bearer authorization header is required.'
         })
         return
@@ -40,19 +40,19 @@ async function authMiddleware(
 
     const result = await authService.checkAccessToken(token)
 
-    if (result.type === 'Success') {
+    if (result.status === 'Success') {
         req.actor = {isGuest: false, isAuthenticated: true, sessionId: result.payload.sessionId, userId: result.payload.userId}
         return next()
     }
 
-    if (result.type === 'Failed') {
+    if (result.status === 'Failed') {
         if (result.reason === 'Expired') {
-            res.status(401).send({type: 'ExpiredAccessToken'})
+            res.status(401).send({status: 'ExpiredAccessToken'})
             return
         }
 
         if (result.reason === 'VerificationFailed') {
-            res.status(401).send({type: 'InvalidAccessToken'})
+            res.status(401).send({status: 'InvalidAccessToken'})
             return
         }
 

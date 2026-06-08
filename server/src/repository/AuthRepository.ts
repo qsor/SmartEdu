@@ -53,16 +53,16 @@ export class AuthRepository {
 
         const session = this.sessions.find(it => it.id === sessionId)
         if (!session)
-            return {type: 'Failed', reason: 'Expired'}
+            return {status: 'Failed', reason: 'Expired'}
 
         // todo реализовать в sql
         // const hasOld = session.refreshTokensSHA256.has(oldRefreshTokenSHA256)
         // if (!hasOld)
-        //     return {type: 'CompromisedRefreshToken'}
+        //     return {status: 'CompromisedRefreshToken'}
 
         session.refreshTokensSHA256.delete(oldRefreshTokenSHA256)
         session.refreshTokensSHA256.add(newRefreshTokenSHA256)
-        return {type: 'Success', newTokenPair}
+        return {status: 'Success', newTokenPair}
 
         // update set current_refresh_token = currentRefreshTokenSHA256 where ...
         // throw new Error('Not yet implemented')

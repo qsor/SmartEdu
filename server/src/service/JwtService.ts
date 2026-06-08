@@ -23,23 +23,23 @@ export class JwtService {
     async verify(token: string): Promise<VerifyJwtTokenResult> {
         try {
             const result = await jwtVerify(token, this.secret, { algorithms: ['HS256'] })
-            return { type: 'Success', payload: result.payload }
+            return { status: 'Success', payload: result.payload }
         } catch (e) {
             if (!(e instanceof JOSEError)) {
                 throw e
             }
 
             if (e instanceof JWTExpired) {
-                return { type: 'Failed', reason: 'Expired' }
+                return { status: 'Failed', reason: 'Expired' }
             } else if (e instanceof JWSSignatureVerificationFailed) {
-                return { type: 'Failed', reason: 'VerificationFailed' }
+                return { status: 'Failed', reason: 'VerificationFailed' }
             } else {
-                return { type: 'Failed', reason: 'VerificationFailed' }
+                return { status: 'Failed', reason: 'VerificationFailed' }
             }
         }
     }
 }
 
 export type VerifyJwtTokenResult =
-    | { type: 'Success', payload: JWTPayload }
-    | { type: 'Failed', reason: 'Expired' | 'VerificationFailed' }
+    | { status: 'Success', payload: JWTPayload }
+    | { status: 'Failed', reason: 'Expired' | 'VerificationFailed' }

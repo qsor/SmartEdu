@@ -8,6 +8,8 @@ import {AuthService} from "../service/AuthService.js";
 import {UserService} from "../service/UserService.js";
 import Duration = Temporal.Duration;
 import Now = Temporal.Now;
+import {toMyselfUser} from "../schema/types/User.js";
+import {LoginResponse, RefreshTokensResponse, RegisterResponse} from "../schema/responses/auth.js";
 
 const REFRESH_TOKEN_COOKIE = 'refreshToken' as const
 // Если клиент получает хедер X-New-Access-Token, то он должен обновить его значение (в localStorage)
@@ -30,7 +32,7 @@ export function authRoutes(
 
         const result = await authService.loginUsingEmail(body.email, body.password)
 
-        if (result.type === 'Success') {
+        if (result.status === 'Success') {
             return res
                 .status(200)
                 .cookie(...refreshTokenCookie(config, result.newTokenPair.refreshToken))
@@ -41,13 +43,13 @@ export function authRoutes(
                 })
         }
 
-        if (result.type === 'EmailNotRegistered') {
+        if (result.status === 'EmailNotRegistered') {
             return res
                 .status(404)
                 .send(result)
         }
 
-        if (result.type === 'InvalidPassword') {
+        if (result.status === 'InvalidPassword') {
             return res
                 .status(404)
                 .send(result)
@@ -66,7 +68,7 @@ export function authRoutes(
             password: body.password,
         })
 
-        if (result.type === 'Success') {
+        if (result.status === 'Success') {
             return res
                 .status(200)
                 .cookie(...refreshTokenCookie(config, result.newTokenPair.refreshToken))
@@ -77,29 +79,29 @@ export function authRoutes(
                 })
         }
 
-        if (result.type === 'Conflict') {
+        if (result.status === 'Conflict') {
             return res
                 .status(409)
                 .send({
-                    type: 'Conflict',
+                    status: 'Conflict',
                     conflictOn: 'Email',
                 })
         }
 
-        if (result.type === 'InvalidEmail') {
+        if (result.status === 'InvalidEmail') {
             return res
                 .status(400)
-                .send({type: 'InvalidEmail'})
+                .send({status: 'InvalidEmail'})
         }
 
         assertNever(result)
     })
 
-    router.post('/auth/refresh', async (req, res: Response<RefreshTokensResult>) => {
+    router.post('/auth/refresh', async (req, res: Response<RefreshTokensResponse>) => {
         const unknownRefreshToken = req.cookies[REFRESH_TOKEN_COOKIE]
         if (typeof unknownRefreshToken !== 'string') {
             return res.status(400).send({
-                type: 'Failed',
+                status: 'Failed',
                 reason: 'Expired',
                 message: `Cookie ${REFRESH_TOKEN_COOKIE} not found. Please sign in again.`,
             })
@@ -108,7 +110,7 @@ export function authRoutes(
         const [refreshTokenType, refreshToken] = unknownRefreshToken.split(' ')
         if (refreshTokenType !== 'Bearer' || typeof refreshToken !== 'string') {
             return res.status(400).send({
-                type: 'Failed',
+                status: 'Failed',
                 reason: 'VerificationFailed',
                 message: `Cookie ${REFRESH_TOKEN_COOKIE} has an invalid token type. Bearer is required.`,
             })
@@ -116,12 +118,12 @@ export function authRoutes(
 
         const result = await authService.refreshTokens(refreshToken)
 
-        if (result.type === 'Success') {
+        if (result.status === 'Success') {
             return res
                 .status(200)
                 .cookie(...refreshTokenCookie(config, result.newTokenPair.refreshToken))
                 .header(NEW_ACCESS_TOKEN_HEADER, result.newTokenPair.accessToken)
-                .send(result)
+                .send({status: 'Success'})
         }
 
         return res

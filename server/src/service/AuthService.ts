@@ -59,7 +59,7 @@ export class AuthService {
         // Проверка валидности Email
 
         if (!emailRegex.test(email))
-            return {type: 'InvalidEmail'}
+            return {status: 'InvalidEmail'}
 
         // Создание пользователя
 
@@ -71,7 +71,7 @@ export class AuthService {
             phoneNumber: null,
         })
 
-        if (createUserResult.type === 'Success') {
+        if (createUserResult.status === 'Success') {
             const user = createUserResult.user
             const sessionId = crypto.randomUUID()
             const tokenPair = await this.createTokenPair({ sessionId, userId: user.id})
@@ -83,11 +83,11 @@ export class AuthService {
                 createdAt: Now.instant(),
             })
 
-            return {type: 'Success', user: user, newTokenPair: tokenPair}
+            return {status: 'Success', user: user, newTokenPair: tokenPair}
         }
 
-        if (createUserResult.type === 'Conflict') {
-            return {type: 'Conflict', conflictOn: 'Email'}
+        if (createUserResult.status === 'Conflict') {
+            return {status: 'Conflict', conflictOn: 'Email'}
         }
 
         assertNever(createUserResult)
@@ -96,13 +96,13 @@ export class AuthService {
     async loginUsingEmail(email: string, password: string): Promise<LoginResult> {
         const user = await this.userRepository.getUserByEmail(email)
         if (user === null) {
-            return {type: 'EmailNotRegistered'}
+            return {status: 'EmailNotRegistered'}
         }
 
         const isPasswordValid = await argon2.verify(user.passwordHash, password)
 
         if (!isPasswordValid) {
-            return {type: 'InvalidPassword'}
+            return {status: 'InvalidPassword'}
         }
 
         const sessionId = crypto.randomUUID()
@@ -114,25 +114,25 @@ export class AuthService {
             createdAt: Now.instant(),
         })
 
-        return {type: 'Success', user: user, newTokenPair: tokenPair}
+        return {status: 'Success', user: user, newTokenPair: tokenPair}
     }
 
     async checkAccessToken(accessToken: AccessToken): Promise<CheckAccessTokenResult> {
         const verifyResult = await this.accessJwtService.verify(accessToken)
 
-        if (verifyResult.type === 'Success') {
+        if (verifyResult.status === 'Success') {
             const payload = this.decodeAccessTokenPayload(verifyResult.payload)
             if (payload === null) {
                 // Подпись верная, значит токен подписал именно сервер.
                 // Скорее всего код сервера обновился, и он больше не принимает такой payload, а клиент использовал старый токен.
                 // Поэтому считаем такой токен истёкшим.
-                return {type: 'Failed', reason: 'Expired'}
+                return {status: 'Failed', reason: 'Expired'}
             }
 
-            return {type: 'Success', payload: payload}
+            return {status: 'Success', payload: payload}
         }
 
-        if (verifyResult.type === 'Failed') {
+        if (verifyResult.status === 'Failed') {
             return verifyResult
         }
 
@@ -142,19 +142,19 @@ export class AuthService {
     async checkRefreshToken(refreshToken: RefreshToken): Promise<CheckRefreshTokenResult> {
         const verifyResult = await this.refreshJwtService.verify(refreshToken)
 
-        if (verifyResult.type === 'Success') {
+        if (verifyResult.status === 'Success') {
             const payload = this.decodeRefreshTokenPayload(verifyResult.payload)
             if (payload === null) {
                 // Подпись верная, значит токен подписал именно сервер.
                 // Скорее всего код сервера обновился, и он больше не принимает такой payload, а клиент использовал старый токен.
                 // Поэтому считаем такой токен истёкшим.
-                return {type: 'Failed', reason: 'Expired'}
+                return {status: 'Failed', reason: 'Expired'}
             }
 
-            return {type: 'Success', payload: payload}
+            return {status: 'Success', payload: payload}
         }
 
-        if (verifyResult.type === 'Failed') {
+        if (verifyResult.status === 'Failed') {
             return verifyResult
         }
 
@@ -163,7 +163,7 @@ export class AuthService {
 
     async refreshTokens(refreshToken: RefreshToken): Promise<RefreshTokensResult> {
         const checkResult = await this.checkRefreshToken(refreshToken)
-        if (checkResult.type !== 'Success')
+        if (checkResult.status !== 'Success')
             return checkResult
         const refreshTokenPayload = checkResult.payload
         const {userId, sessionId} = refreshTokenPayload
@@ -172,7 +172,7 @@ export class AuthService {
 
         const result = await this.authRepository.refreshTokens(sessionId, refreshToken, newTokenPair)
 
-        if (result.type === 'CompromisedSession') {
+        if (result.status === 'CompromisedSession') {
             // Если наша сессия (в частности refresh token) была скомпроментирована, то
             //   нам нужно её сбросить
             await this.authRepository.revokeSession(sessionId)

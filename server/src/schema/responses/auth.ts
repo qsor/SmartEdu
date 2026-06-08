@@ -3,22 +3,22 @@ import {MyselfUser} from "../types/User.js";
 // ------ Регистрация и авторизация ------
 
 export type RegisterResponse =
-    | { type: 'Success', myself: MyselfUser }
+    | { status: 'Success', myself: MyselfUser }
     // * Не удалось зарегистрироваться: Email уже занят *
-    | { type: 'Conflict', conflictOn: 'Email' | 'PhoneNumber' }
+    | { status: 'Conflict', conflictOn: 'Email' | 'PhoneNumber' }
     // * Некорректный email адрес *
-    | { type: 'InvalidEmail' }
+    | { status: 'InvalidEmail' }
 
 export type LoginResponse =
-    | { type: 'Success', myself: MyselfUser }
+    | { status: 'Success', myself: MyselfUser }
     // * Этот email не зарегистрирован *
-    | { type: 'EmailNotRegistered' }
+    | { status: 'EmailNotRegistered' }
     // * Неправильный пароль *
-    | { type: 'InvalidPassword' }
+    | { status: 'InvalidPassword' }
 
 // ------ JWT Tokens ------
 
 export type RefreshTokensResponse =
-    | { type: 'Success' }
-    | { type: 'Failed', reason: 'Expired' | 'VerificationFailed', message?: string }
-    | { type: 'CompromisedSession' }
+    | { status: 'Success' }
+    | { status: 'Failed', reason: 'Expired' | 'VerificationFailed', message?: string }
+    | { status: 'CompromisedSession' }
