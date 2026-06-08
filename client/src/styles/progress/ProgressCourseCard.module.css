@@ -1,0 +1,53 @@
+/* Стили для карточки прогресса курса */
+
+.card {
+  @apply bg-white border border-gray-200 rounded-xl transition-shadow hover:shadow-lg p-4;
+}
+
+.cardMain {
+  @apply flex gap-10 max-w-none items-center;
+}
+
+.cardDefault {
+  @apply w-full max-w-md;
+}
+
+.imageContainer {
+  @apply bg-gray-200 rounded-lg flex items-center justify-center;
+}
+
+.imageContainerMain {
+  @apply w-80 h-52 shrink-0;
+}
+
+.imageContainerDefault {
+  @apply w-full h-40 mb-4;
+}
+
+.imagePlaceholderText {
+  @apply text-gray-400 text-sm;
+}
+
+.contentContainer {
+  @apply flex-1;
+}
+
+.titleMain {
+  @apply font-semibold text-gray-900 text-2xl mb-2;
+}
+
+.titleDefault {
+  @apply font-semibold text-gray-900 text-lg mb-3;
+}
+
+.continueButton {
+  @apply mt-4 px-4 py-2 bg-transparent border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors font-medium;
+}
+
+.continueButtonMain {
+  @apply w-fit;
+}
+
+.continueButtonDefault {
+  @apply w-full;
+}

@@ -31,6 +31,14 @@ services:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/smartedu
       - PORT=3000
+      - CLIENT_ORIGIN=http://localhost:5173
+      - ACCESS_TOKEN_SECRET=qwertyuiop
+      - ACCESS_TOKEN_LIFETIME=PT5m
+      - REFRESH_TOKEN_SECRET=asdfghjkl
+      - REFRESH_TOKEN_LIFETIME=P28d
+      - REFRESH_TOKEN_COOKIE_LIFETIME=P28d
+      - COOKIE_SECRET=zxcvbnm
+      - SECURE_COOKIE=false
     volumes:
       - ./server:/app
       - /app/node_modules
