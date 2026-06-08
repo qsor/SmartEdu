@@ -7,6 +7,7 @@ import Instant = Temporal.Instant;
 export type Actor = UserActor | GuestActor
 
 export interface UserActor {
+    type: 'User'
     isGuest: false
     isAuthenticated: true
     sessionId: SessionId
@@ -14,6 +15,7 @@ export interface UserActor {
 }
 
 export interface GuestActor {
+    type: 'Guest'
     isGuest: true
     isAuthenticated: false
     sessionId?: undefined

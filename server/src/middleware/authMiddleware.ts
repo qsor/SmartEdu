@@ -25,7 +25,7 @@ async function authMiddleware(
 ) {
     const authorizationHeader = req.headers.authorization
     if (authorizationHeader === undefined) {
-        req.actor = {isGuest: true, isAuthenticated: false, userId: undefined, sessionId: undefined}
+        req.actor = {type: 'Guest', isGuest: true, isAuthenticated: false, userId: undefined, sessionId: undefined}
         return next()
     }
 
@@ -41,7 +41,7 @@ async function authMiddleware(
     const result = await authService.checkAccessToken(token)
 
     if (result.status === 'Success') {
-        req.actor = {isGuest: false, isAuthenticated: true, sessionId: result.payload.sessionId, userId: result.payload.userId}
+        req.actor = {type: 'User', isGuest: false, isAuthenticated: true, sessionId: result.payload.sessionId, userId: result.payload.userId}
         return next()
     }
 
