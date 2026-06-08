@@ -3,9 +3,9 @@ import express, {Router} from "express";
 import cors from "cors";
 import {env} from "./config/env.js";
 import cookieParser from "cookie-parser";
-import {apiRoutes} from "./api/index.js";
 import {bootstrap} from "./bootstrap.js";
 import {createAuthMiddleware} from "./middleware/authMiddleware.js";
+import {allRoutes} from "./routes/all.js";
 
 const {
     authRepository,
@@ -45,7 +45,7 @@ expressApp.get("/", (_req, res) => {
 expressApp.use(createAuthMiddleware(authService))
 
 const apiRouter = Router()
-apiRoutes(apiRouter, authService, userService, {
+allRoutes(apiRouter, authService, userService, {
     secureCookie: env.secureCookie,
     refreshTokenCookieLifetime: env.refreshTokenCookieLifetime,
 })

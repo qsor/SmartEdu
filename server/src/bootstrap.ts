@@ -1,8 +1,10 @@
-import {AuthRepository, UserRepository} from "./repository/index.js";
-import {AuthService, UserService} from "./service/index.js";
-import {JwtService} from "./jwt/index.js";
 import {TextEncoder} from "node:util";
 import {env} from "./config/env.js";
+import {AuthRepository} from "./repository/AuthRepository.js";
+import {UserRepository} from "./repository/UserRepository.js";
+import {JwtService} from "./jwt/JwtService.js";
+import {AuthService} from "./service/AuthService.js";
+import {UserService} from "./service/UserService.js";
 
 export async function bootstrap() {
     const authRepository = new AuthRepository()

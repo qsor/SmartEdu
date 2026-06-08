@@ -1,10 +1,8 @@
-import {JwtService} from "../jwt/index.js";
 import {JWTPayload} from "jose";
 import {assertNever} from "../shared/index.js";
 import * as crypto from "node:crypto";
 import {Temporal} from "@js-temporal/polyfill";
 import * as argon2 from "argon2";
-import {AuthRepository, UserRepository} from "../repository/index.js";
 import {toMyselfUser, UserId} from "../schema/types/User.js";
 import {
     AccessToken,
@@ -21,6 +19,9 @@ import {
     RefreshTokensResult,
     RegisterResult
 } from "../schema/results/auth.js";
+import {JwtService} from "../jwt/JwtService.js";
+import {AuthRepository} from "../repository/AuthRepository.js";
+import {UserRepository} from "../repository/UserRepository.js";
 import DurationLike = Temporal.DurationLike;
 import Duration = Temporal.Duration;
 import Now = Temporal.Now;

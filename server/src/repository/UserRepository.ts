@@ -1,4 +1,4 @@
-import {InternalUser, toMyselfUser, User, UserId} from "../schema/types/User.js";
+import {InternalUser, toMyselfUser, UserId} from "../schema/types/User.js";
 import {DeleteUserResult, EditUserResult} from "../schema/results/users.js";
 import {RegisterResult} from "../schema/results/auth.js";
 

@@ -1,4 +1,4 @@
-import {InternalUser, MyselfUser, User} from "../types/User.js";
+import {MyselfUser, User} from "../types/User.js";
 
 export type GetUserResult =
     | { type: 'Success', user: User }

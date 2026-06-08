@@ -1,9 +1,9 @@
 import * as crypto from "node:crypto";
 import {Temporal} from "@js-temporal/polyfill";
-import Instant = Temporal.Instant;
 import {UserId} from "../schema/types/User.js";
-import {RefreshToken, Session, SessionId, TokenPair} from "../schema/types/JWT.js";
+import {RefreshToken, Session, SessionId} from "../schema/types/JWT.js";
 import {RefreshTokensResult} from "../schema/results/auth.js";
+import Instant = Temporal.Instant;
 
 export class AuthRepository {
     private sessions: (Session & {

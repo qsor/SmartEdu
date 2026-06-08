@@ -1,7 +1,8 @@
 import {Response, Router} from "express";
-import {AuthService, UserService} from "../../service/index.js";
-import {toMyselfUser, toOtherUser, UserId} from "../../schema/types/User.js";
-import {GetUserResult} from "../../schema/results/users.js";
+import {toMyselfUser, toOtherUser, UserId} from "../schema/types/User.js";
+import {GetUserResult} from "../schema/results/users.js";
+import {AuthService} from "../service/AuthService.js";
+import {UserService} from "../service/UserService.js";
 
 export function userRoutes(
     router: Router,

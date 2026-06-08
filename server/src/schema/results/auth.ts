@@ -1,5 +1,5 @@
-import {InternalUser, MyselfUser} from "../types/User.js";
-import {AccessTokenPayload, RefreshTokenPayload, TokenPair} from "../types/JWT.js";
+import {MyselfUser} from "../types/User.js";
+import {AccessTokenPayload, RefreshTokenPayload} from "../types/JWT.js";
 
 // ------ Регистрация и авторизация ------
 

@@ -1,10 +1,11 @@
 import {Response, Router} from "express";
-import {AuthService, UserService} from "../../service/index.js";
 import {CookieOptions} from "express-serve-static-core";
-import {assertNever} from "../../shared/index.js";
+import {assertNever} from "../shared/index.js";
 import {Temporal} from "@js-temporal/polyfill";
-import {LoginResult, RefreshTokensResult, RegisterResult} from "../../schema/results/auth.js";
-import {LoginRequestBody, RegisterRequestBody} from "../../schema/http/auth.js";
+import {LoginResult, RefreshTokensResult, RegisterResult} from "../schema/results/auth.js";
+import {LoginRequestBody, RegisterRequestBody} from "../schema/http/auth.js";
+import {AuthService} from "../service/AuthService.js";
+import {UserService} from "../service/UserService.js";
 import Duration = Temporal.Duration;
 import Now = Temporal.Now;
 
