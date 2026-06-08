@@ -1,8 +1,8 @@
-import React, { useState, type ChangeEvent, type InputHTMLAttributes } from 'react';
-import InputText from '../components/button/InputText';
-import { useNavigate } from 'react-router-dom';
-import styles from '../styles/LoginScreen.module.css'; 
-import ButtonPrimary from '@/components/button/ButtonPrimary';
+import React, { useState, type ChangeEvent } from "react";
+import InputText from "../components/button/InputText";
+import { useNavigate } from "react-router-dom";
+import styles from "../styles/LoginScreen.module.css";
+import ButtonPrimary from "@/components/button/ButtonPrimary";
 
 type LoginForm = {
   email: string;
@@ -14,8 +14,8 @@ type FormErrors = Partial<Record<keyof LoginForm, string>>;
 function LoginScreen() {
   const navigate = useNavigate();
   const [form, setForm] = useState<LoginForm>({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -31,7 +31,7 @@ function LoginScreen() {
     if (errors[fieldName]) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        [fieldName]: '',
+        [fieldName]: "",
       }));
     }
   };
@@ -41,15 +41,15 @@ function LoginScreen() {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!form.email.trim()) {
-      nextErrors.email = 'Введите email';
+      nextErrors.email = "Введите email";
     } else if (!emailPattern.test(form.email)) {
-      nextErrors.email = 'Введите корректный email';
+      nextErrors.email = "Введите корректный email";
     }
 
     if (!form.password) {
-      nextErrors.password = 'Введите пароль';
+      nextErrors.password = "Введите пароль";
     } else if (form.password.length < 8) {
-      nextErrors.password = 'Минимум 8 символов';
+      nextErrors.password = "Минимум 8 символов";
     }
 
     return nextErrors;
@@ -65,8 +65,8 @@ function LoginScreen() {
       return;
     }
 
-    navigate('/catalog');
-    console.log('Форма входа прошла валидацию', form);
+    navigate("/catalog");
+    console.log("Форма входа прошла валидацию", form);
   };
 
   return (
@@ -108,26 +108,18 @@ function LoginScreen() {
           )}
         </div>
 
-        <button
-          className={styles.forgotButton}
-          type="button"
-        >
+        <button className={styles.forgotButton} type="button">
           Забыли пароль?
         </button>
 
         <div className={styles.submitWrapper}>
-          <ButtonPrimary
-            title="Войти"
-            type="submit"/>
+          <ButtonPrimary title="Войти" type="submit" />
         </div>
       </form>
 
       <p className={styles.footerText}>
-        Нет аккаунта?{' '}
-        <button
-          className={styles.registerButton}
-          type="button"
-        >
+        Нет аккаунта?{" "}
+        <button className={styles.registerButton} type="button">
           Зарегистрироваться
         </button>
       </p>
