@@ -1,12 +1,13 @@
 import {Router} from "express";
-import {AuthService, UserService} from "../service/index.js";
-import {healthRoutes} from "./routes/health.js";
-import {authRoutes} from "./routes/auth.js";
-import {userRoutes} from "./routes/user.js";
 import {Temporal} from "@js-temporal/polyfill";
+import {healthRoutes} from "./health.js";
+import {authRoutes} from "./auth.js";
+import {userRoutes} from "./user.js";
+import {UserService} from "../service/UserService.js";
+import {AuthService} from "../service/AuthService.js";
 import Duration = Temporal.Duration;
 
-export function apiRoutes(
+export function allRoutes(
     router: Router,
     authService: AuthService,
     userService: UserService,

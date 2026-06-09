@@ -1,26 +1,25 @@
-import {UserId} from "./users.js";
+import {UserId} from "./User.js";
 import {Temporal} from "@js-temporal/polyfill";
 import Instant = Temporal.Instant;
 
-export type Actor = UserActor | GuestActor | SystemActor
+// ------ Actor ------
+
+export type Actor = UserActor | GuestActor
 
 export interface UserActor {
     type: 'User'
+    isGuest: false
+    isAuthenticated: true
     sessionId: SessionId
     userId: UserId
 }
 
 export interface GuestActor {
     type: 'Guest'
-    sessionId: undefined
-    userId: undefined
-}
-
-export interface SystemActor {
-    type: 'System'
-    name: string
-    sessionId: undefined
-    userId: undefined
+    isGuest: true
+    isAuthenticated: false
+    sessionId?: undefined
+    userId?: undefined
 }
 
 // ------ Sessions ------
@@ -32,11 +31,6 @@ export interface Session {
     id: SessionId
     userId: UserId
     createdAt: Instant
-    // Информация о сессии
-    // Например: iPhone Safari
-    // clientInfo: string
-    // Когда эта сессия сделала последний refresh JWT-токена (Эту дату можно отражать как дату последней активности)
-    // updatedAt: Instant
 }
 
 // ------ JWT Tokens ------

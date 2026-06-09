@@ -1,6 +1,8 @@
-import {RefreshToken, Session, SessionId, UserId} from "../domain/index.js";
 import * as crypto from "node:crypto";
 import {Temporal} from "@js-temporal/polyfill";
+import {UserId} from "../schema/types/User.js";
+import {RefreshToken, Session, SessionId, TokenPair} from "../schema/types/JWT.js";
+import {RefreshTokensResult} from "../schema/results/auth.js";
 import Instant = Temporal.Instant;
 
 export class AuthRepository {
@@ -13,7 +15,7 @@ export class AuthRepository {
         userId: UserId
         currentRefreshToken: RefreshToken
         createdAt: Instant
-    }): Promise<CreateSessionResult> {
+    }): Promise<Session> {
         const session: Session = {
             id: params.sessionId,
             userId: params.userId,
@@ -26,7 +28,7 @@ export class AuthRepository {
         const currentRefreshTokenSHA256 = crypto.hash('sha256', params.currentRefreshToken, 'hex')
         this.sessions.push({...session, refreshTokensSHA256: new Set([currentRefreshTokenSHA256])})
 
-        return {type: 'Success', session}
+        return session
 
         // insert ...
         // throw new Error('Not yet implemented')
@@ -45,32 +47,32 @@ export class AuthRepository {
         // throw new Error('Not yet implemented')
     }
 
-    async refreshTokens(sessionId: SessionId, oldRefreshToken: RefreshToken, newRefreshToken: RefreshToken): Promise<RefreshTokensResult> {
+    async refreshTokens(sessionId: SessionId, oldRefreshToken: RefreshToken, newTokenPair: TokenPair): Promise<RefreshTokensResult> {
         const oldRefreshTokenSHA256 = crypto.hash('sha256', oldRefreshToken, 'hex')
-        const newRefreshTokenSHA256 = crypto.hash('sha256', newRefreshToken, 'hex')
+        const newRefreshTokenSHA256 = crypto.hash('sha256', newTokenPair.refreshToken, 'hex')
 
         const session = this.sessions.find(it => it.id === sessionId)
         if (!session)
-            return {type: 'InvalidSessionId'}
+            return {status: 'Failed', reason: 'Expired'}
 
-        const hasOld = session.refreshTokensSHA256.has(oldRefreshTokenSHA256)
-        if (!hasOld)
-            return {type: 'CompromisedRefreshToken'}
+        // todo реализовать в sql
+        // const hasOld = session.refreshTokensSHA256.has(oldRefreshTokenSHA256)
+        // if (!hasOld)
+        //     return {status: 'CompromisedRefreshToken'}
 
         session.refreshTokensSHA256.delete(oldRefreshTokenSHA256)
         session.refreshTokensSHA256.add(newRefreshTokenSHA256)
-        return {type: 'Success'}
+        return {status: 'Success', newTokenPair}
 
         // update set current_refresh_token = currentRefreshTokenSHA256 where ...
         // throw new Error('Not yet implemented')
     }
 
-    async revokeSession(sessionId: SessionId): Promise<RevokeSessionResult> {
+    async revokeSession(sessionId: SessionId): Promise<void> {
         const index = this.sessions.findIndex(it => it.id === sessionId)
         if (index === -1)
-            return {type: 'InvalidSessionId'}
+            return
         this.sessions.splice(index, 1)
-        return {type: 'Success'}
 
         // delete ... where id = ...
         // throw new Error('Not yet implemented')
@@ -81,16 +83,3 @@ export class AuthRepository {
         throw new Error('Not yet implemented')
     }
 }
-
-export type CreateSessionResult =
-    | { type: 'Success', session: Session }
-    | { type: 'InvalidUserId' }
-
-export type RefreshTokensResult =
-    | { type: 'Success' }
-    | { type: 'InvalidSessionId' }
-    | { type: 'CompromisedRefreshToken' }
-
-export type RevokeSessionResult =
-    | { type: 'Success' }
-    | { type: 'InvalidSessionId' }
