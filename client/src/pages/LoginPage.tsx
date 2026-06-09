@@ -2,7 +2,9 @@ import React, { useState, type ChangeEvent } from "react";
 import InputText from "../components/button/InputText";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/login/LoginScreen.module.css";
-import { useAuth } from "../hooks/useAuth";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { clearAuthError } from "@/store/slices/authSlice";
+import { loginUser } from "@/store/slices/authThunks";
 
 type LoginForm = {
   email: string;
@@ -13,14 +15,16 @@ type FormErrors = Partial<Record<keyof LoginForm, string>>;
 
 function LoginScreen() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+
+  const dispatch = useAppDispatch();
+  const { isLoading, error: authError } = useAppSelector((state) => state.auth);
+
   const [form, setForm] = useState<LoginForm>({
     email: "",
     password: "",
   });
+
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [authError, setAuthError] = useState("");
 
   const changeField = (event: ChangeEvent<HTMLInputElement>) => {
     const fieldName = event.target.name as keyof LoginForm;
@@ -39,7 +43,7 @@ function LoginScreen() {
     }
 
     if (authError) {
-      setAuthError("");
+      dispatch(clearAuthError());
     }
   };
 
@@ -72,33 +76,10 @@ function LoginScreen() {
       return;
     }
 
-    setIsLoading(true);
-    setAuthError("");
+    const result = await dispatch(loginUser(form));
 
-    try {
-      // TODO: Здесь будет запрос к бекенду
-      // const response = await axios.post("http://localhost:3000/api/auth/login", {
-      //   email: form.email,
-      //   password: form.password,
-      // });
-      // const userData = response.data.user;
-
-      // Mock данные для тестирования (удалить когда будет бекенд)
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const mockUser = {
-        id: 1,
-        name: form.email.split("@")[0],
-        email: form.email,
-        avatar: "",
-      };
-
-      login(mockUser);
+    if (loginUser.fulfilled.match(result)) {
       navigate("/catalog");
-    } catch (error) {
-      setAuthError("Неверный email или пароль. Попробуйте снова.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -108,7 +89,10 @@ function LoginScreen() {
 
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {authError && (
-          <div className={styles.errorText} style={{ marginBottom: "16px", textAlign: "center" }}>
+          <div
+            className={styles.errorText}
+            style={{ marginBottom: "16px", textAlign: "center" }}
+          >
             {authError}
           </div>
         )}
@@ -156,10 +140,10 @@ function LoginScreen() {
         </button>
 
         <div className={styles.submitWrapper}>
-          <button 
+          <button
             type="submit"
             disabled={isLoading}
-            className={`${styles.submitButton} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`${styles.submitButton} ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {isLoading ? "Вход..." : "Войти"}
           </button>
