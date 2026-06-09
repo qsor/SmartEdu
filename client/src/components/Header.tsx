@@ -8,9 +8,10 @@ import { useAuth } from "../hooks/useAuth";
 
 interface HeaderProps {
   avatar?: string;
+  isFullWidth?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ avatar }) => {
+export const Header: React.FC<HeaderProps> = ({ avatar, isFullWidth=false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isAuthenticated, isGuest, logout } = useAuth();
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ avatar }) => {
   };
 
   return (
-    <header className="fixed left-[230px] right-0 top-0 z-20 h-[56px] bg-orange-500 flex items-center px-6">
+    <header className={`fixed right-0 top-0 z-20 h-[56px] bg-orange-500 flex items-center px-6 transition-all ${isFullWidth ? "left-0" : "left-[230px]"}`}>
       <div className="mx-auto w-full max-w-[520px]">
         <SearchInput />
       </div>

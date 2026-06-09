@@ -94,7 +94,7 @@ function LoginScreen() {
       };
 
       login(mockUser);
-      navigate("/dashboard");
+      navigate("/catalog");
     } catch (error) {
       setAuthError("Неверный email или пароль. Попробуйте снова.");
     } finally {
