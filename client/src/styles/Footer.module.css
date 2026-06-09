@@ -1,0 +1,39 @@
+.footer {
+    @apply flex w-full items-center justify-between rounded-xl bg-white px-6 py-4;
+}
+
+.left {
+    @apply flex items-center gap-6;
+}
+
+.logoBox {
+    @apply flex items-center gap-2;
+}
+
+.logoIcon {
+    @apply flex h-8 w-8 items-center justify-center rounded-lg text-sm;
+}
+
+.logoText {
+    @apply text-sm font-semibold text-neutral-900;
+}
+
+.copyright {
+    @apply text-xs leading-4 text-neutral-300;
+}
+
+.nav {
+    @apply flex items-center gap-16;
+}
+
+.navLink {
+    @apply text-xs font-medium text-neutral-700 transition-colors hover:text-orange-500;
+}
+
+.socials {
+    @apply flex items-center gap-4;
+}
+
+.socialLink {
+    @apply text-sm font-medium text-neutral-900 transition-colors hover:text-orange-500;
+}
