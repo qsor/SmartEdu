@@ -1,7 +1,7 @@
 import {NextFunction, Request, RequestHandler, Response} from "express";
-import {Actor} from "../../domain/index.js";
-import {assertNever, Mutable} from "../../shared/index.js";
-import {AuthService} from "../../service/index.js";
+import {assertNever, Mutable} from "../shared/index.js";
+import {Actor} from "../schema/types/JWT.js";
+import {AuthService} from "../service/AuthService.js";
 
 declare global {
     namespace Express {
@@ -25,14 +25,14 @@ async function authMiddleware(
 ) {
     const authorizationHeader = req.headers.authorization
     if (authorizationHeader === undefined) {
-        req.actor = {type: 'Guest', userId: undefined, sessionId: undefined}
+        req.actor = {type: 'Guest', isGuest: true, isAuthenticated: false, userId: undefined, sessionId: undefined}
         return next()
     }
 
     const [type, token] = authorizationHeader.split(' ')
     if (type !== 'Bearer' || token === undefined) {
         res.status(400).send({
-            type: 'Unauthenticated',
+            status: 'Unauthenticated',
             message: 'Invalid Authorization header. Bearer authorization header is required.'
         })
         return
@@ -40,19 +40,19 @@ async function authMiddleware(
 
     const result = await authService.checkAccessToken(token)
 
-    if (result.type === 'Success') {
-        req.actor = {type: 'User', sessionId: result.payload.sessionId, userId: result.payload.userId}
+    if (result.status === 'Success') {
+        req.actor = {type: 'User', isGuest: false, isAuthenticated: true, sessionId: result.payload.sessionId, userId: result.payload.userId}
         return next()
     }
 
-    if (result.type === 'Failed') {
+    if (result.status === 'Failed') {
         if (result.reason === 'Expired') {
-            res.status(401).send({type: 'ExpiredAccessToken'})
+            res.status(401).send({status: 'ExpiredAccessToken'})
             return
         }
 
         if (result.reason === 'VerificationFailed') {
-            res.status(401).send({type: 'InvalidAccessToken'})
+            res.status(401).send({status: 'InvalidAccessToken'})
             return
         }
 

@@ -1,21 +1,23 @@
-import {DeleteUserResult, EditUserResult, User, UserId} from "../domain/index.js";
+import {InternalUser, toMyselfUser, UserId} from "../schema/types/User.js";
+import {CreateUserResult} from "../schema/results/auth.js";
+import {EditUserResponse} from "../schema/responses/user.js";
 
 export class UserRepository {
-    private users: User[] = []
+    private users: InternalUser[] = []
 
     async createUser(params: {
         firstName: string
         lastName: string | null
-        passwordHash: string | null
+        passwordHash: string
         email: string | null
         phoneNumber: string | null
     }): Promise<CreateUserResult> {
         if (params.email !== null && await this.existsByEmail(params.email))
-            return { type: 'Conflict', conflictOn: 'Email' }
+            return { status: 'Conflict', conflictOn: 'Email' }
         if (params.phoneNumber !== null && await this.existsByPhoneNumber(params.phoneNumber))
-            return { type: 'Conflict', conflictOn: 'PhoneNumber' }
+            return { status: 'Conflict', conflictOn: 'PhoneNumber' }
 
-        const user: User = {
+        const user: InternalUser = {
             id: crypto.randomUUID(),
             firstName: params.firstName,
             lastName: params.lastName,
@@ -26,7 +28,7 @@ export class UserRepository {
 
         this.users.push(user)
 
-        return { type: 'Success', newUser: user }
+        return { status: 'Success', user: user }
 
         // INSERT INTO users (first_name, last_name, password_hash, email) values (?, ?, ?, ?) RETURNING *
         // throw new Error('Not yet implemented')
@@ -53,21 +55,21 @@ export class UserRepository {
         // throw new Error('Not yet implemented')
     }
 
-    async getUser(id: UserId): Promise<User | null> {
+    async getUser(id: UserId): Promise<InternalUser | null> {
         return this.users.find(it => it.id === id) ?? null
 
         // SELECT FROM users WHERE id = ?
         // throw new Error('Not yet implemented')
     }
 
-    async getUserByEmail(email: string): Promise<User | null> {
+    async getUserByEmail(email: string): Promise<InternalUser | null> {
         return this.users.find(it => it.email === email) ?? null
 
         // SELECT FROM users WHERE email = ?
         // throw new Error('Not yet implemented')
     }
 
-    async getUserByPhoneNumber(phoneNumber: string): Promise<User | null> {
+    async getUserByPhoneNumber(phoneNumber: string): Promise<InternalUser | null> {
         return this.users.find(it => it.phoneNumber === phoneNumber) ?? null
 
         // SELECT FROM users WHERE phone_number = ?
@@ -78,17 +80,29 @@ export class UserRepository {
         firstName?: string
         lastName?: string | null
         email?: string | null
-    }): Promise<EditUserResult> {
+    }): Promise<EditUserResponse> {
+        if (fields.email) {
+            if (await this.existsByEmail(fields.email)) {
+                return {status: 'EmailAlreadyTaken'}
+            }
+        }
+
+        const index = this.users.findIndex(it => it.id === id)
+        if (index === -1)
+            throw new Error('User not found')
+
+        const [user] = this.users.splice(index, 1)
+        const newUser: InternalUser = {...user, ...fields}
+        this.users.push(newUser)
+
+        return {status: 'Success', myself: toMyselfUser(newUser)}
+
         // UPDATE users SET ... = ... WHERE id = ?
-        throw new Error('Not yet implemented')
+        // throw new Error('Not yet implemented')
     }
 
-    async deleteUser(id: UserId): Promise<DeleteUserResult> {
+    async deleteUser(id: UserId): Promise<void> {
         // DELETE FROM users WHERE id = ?
         throw new Error('Not yet implemented')
     }
 }
-
-export type CreateUserResult =
-    | { type: 'Success', newUser: User }
-    | { type: 'Conflict', conflictOn: 'Email' | 'PhoneNumber' }

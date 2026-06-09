@@ -1,18 +1,15 @@
 import {Response, Router} from "express";
-import {AuthService, UserService} from "../../service/index.js";
 import {CookieOptions} from "express-serve-static-core";
-import {
-    LoginRequestBody,
-    LoginResponse,
-    RegisterRequestBody,
-    RegisterResponse,
-    RefreshTokensResponse
-} from "../requestsAndResponses/auth.js";
-import {assertNever} from "../../shared/index.js";
-import {toMyselfDto} from "../mappers/users.js";
+import {assertNever} from "../shared/index.js";
 import {Temporal} from "@js-temporal/polyfill";
+import {LoginResult, RefreshTokensResult, RegisterResult} from "../schema/results/auth.js";
+import {LoginRequestBody, RegisterRequestBody} from "../schema/http/auth.js";
+import {AuthService} from "../service/AuthService.js";
+import {UserService} from "../service/UserService.js";
 import Duration = Temporal.Duration;
 import Now = Temporal.Now;
+import {toMyselfUser} from "../schema/types/User.js";
+import {LoginResponse, RefreshTokensResponse, RegisterResponse} from "../schema/responses/auth.js";
 
 const REFRESH_TOKEN_COOKIE = 'refreshToken' as const
 // Если клиент получает хедер X-New-Access-Token, то он должен обновить его значение (в localStorage)
@@ -35,31 +32,27 @@ export function authRoutes(
 
         const result = await authService.loginUsingEmail(body.email, body.password)
 
-        if (result.type === 'Success') {
+        if (result.status === 'Success') {
             return res
                 .status(200)
-                .cookie(...refreshTokenCookie(config, result.tokenPair.refreshToken))
-                .header(NEW_ACCESS_TOKEN_HEADER, result.tokenPair.accessToken)
+                .cookie(...refreshTokenCookie(config, result.newTokenPair.refreshToken))
+                .header(NEW_ACCESS_TOKEN_HEADER, result.newTokenPair.accessToken)
                 .send({
-                    type: 'Success',
-                    myself: toMyselfDto(result.user),
+                    status: 'Success',
+                    myself: toMyselfUser(result.user),
                 })
         }
 
-        if (result.type === 'EmailNotRegistered') {
+        if (result.status === 'EmailNotRegistered') {
             return res
                 .status(404)
-                .send({
-                    type: 'EmailNotRegistered',
-                })
+                .send(result)
         }
 
-        if (result.type === 'InvalidPassword') {
+        if (result.status === 'InvalidPassword') {
             return res
                 .status(404)
-                .send({
-                    type: 'InvalidPassword',
-                })
+                .send(result)
         }
 
         assertNever(result)
@@ -75,35 +68,30 @@ export function authRoutes(
             password: body.password,
         })
 
-        if (result.type === 'Success') {
+        if (result.status === 'Success') {
             return res
                 .status(200)
-                .cookie(...refreshTokenCookie(config, result.tokenPair.refreshToken))
-                .header(NEW_ACCESS_TOKEN_HEADER, result.tokenPair.accessToken)
+                .cookie(...refreshTokenCookie(config, result.newTokenPair.refreshToken))
+                .header(NEW_ACCESS_TOKEN_HEADER, result.newTokenPair.accessToken)
                 .send({
-                    type: 'Success',
-                    myself: toMyselfDto(result.newUser),
+                    status: 'Success',
+                    myself: toMyselfUser(result.user),
                 })
         }
 
-        if (result.type === 'Conflict') {
+        if (result.status === 'Conflict') {
             return res
                 .status(409)
                 .send({
-                    type: 'Conflict',
+                    status: 'Conflict',
                     conflictOn: 'Email',
                 })
         }
 
-        if (result.type === 'InvalidEmail') {
+        if (result.status === 'InvalidEmail') {
             return res
                 .status(400)
-                .send({type: 'InvalidEmail'})
-        }
-
-        if (result.type === 'Moderation') {
-            throw new Error('Мы пока не хотим отдавать этот результат в API чтобы не нагружать его. ' +
-                'В любом случае, модерация пока не реализована.')
+                .send({status: 'InvalidEmail'})
         }
 
         assertNever(result)
@@ -113,8 +101,8 @@ export function authRoutes(
         const unknownRefreshToken = req.cookies[REFRESH_TOKEN_COOKIE]
         if (typeof unknownRefreshToken !== 'string') {
             return res.status(400).send({
-                type: 'AuthorizationError',
-                reason: 'InvalidSession',
+                status: 'Failed',
+                reason: 'Expired',
                 message: `Cookie ${REFRESH_TOKEN_COOKIE} not found. Please sign in again.`,
             })
         }
@@ -122,51 +110,25 @@ export function authRoutes(
         const [refreshTokenType, refreshToken] = unknownRefreshToken.split(' ')
         if (refreshTokenType !== 'Bearer' || typeof refreshToken !== 'string') {
             return res.status(400).send({
-                type: 'AuthorizationError',
-                reason: 'InvalidSession',
+                status: 'Failed',
+                reason: 'VerificationFailed',
                 message: `Cookie ${REFRESH_TOKEN_COOKIE} has an invalid token type. Bearer is required.`,
             })
         }
 
         const result = await authService.refreshTokens(refreshToken)
 
-        if (result.type === 'Success') {
+        if (result.status === 'Success') {
             return res
                 .status(200)
-                .cookie(...refreshTokenCookie(config, result.tokenPair.refreshToken))
-                .header(NEW_ACCESS_TOKEN_HEADER, result.tokenPair.accessToken)
-                .send({type: 'Success'})
+                .cookie(...refreshTokenCookie(config, result.newTokenPair.refreshToken))
+                .header(NEW_ACCESS_TOKEN_HEADER, result.newTokenPair.accessToken)
+                .send({status: 'Success'})
         }
 
-        if (result.type === 'Failed') {
-            if (result.reason === 'Expired') {
-                return res.status(400).send({
-                    type: 'AuthorizationError',
-                    reason: 'ExpiredSession',
-                    message: `Your session has expired. Please sign in again.`,
-                })
-            }
-
-            if (result.reason === 'VerificationFailed') {
-                return res.status(400).send({
-                    type: 'AuthorizationError',
-                    reason: 'InvalidSession',
-                    message: `Your ${REFRESH_TOKEN_COOKIE} cookie is malformed. Please sign in again.`,
-                })
-            }
-
-            assertNever(result.reason)
-        }
-
-        if (result.type === 'CompromisedSession') {
-            return res.status(400).send({
-                type: 'AuthorizationError',
-                reason: 'CompromisedSession',
-                message: `Your session was compromised. Sorry. Please sign in again.`,
-            })
-        }
-
-        assertNever(result)
+        return res
+            .status(400)
+            .send(result)
     })
 }
 
