@@ -1,33 +1,35 @@
-import React, { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import InputText from "../components/button/InputText";
-import { useNavigate } from "react-router-dom";
 import styles from "../styles/login/LoginScreen.module.css";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearAuthError } from "@/store/slices/authSlice";
-import { loginUser } from "@/store/slices/authThunks";
+import { registerUser } from "@/store/slices/authThunks";
 
-type LoginForm = {
+type RegisterForm = {
+  name: string;
   email: string;
   password: string;
+  repeatPassword: string;
 };
 
-type FormErrors = Partial<Record<keyof LoginForm, string>>;
+type FormErrors = Partial<Record<keyof RegisterForm, string>>;
 
-function LoginScreen() {
+function RegisterScreen() {
   const navigate = useNavigate();
-
   const dispatch = useAppDispatch();
   const { isLoading, error: authError } = useAppSelector((state) => state.auth);
 
-  const [form, setForm] = useState<LoginForm>({
+  const [form, setForm] = useState<RegisterForm>({
+    name: "",
     email: "",
     password: "",
+    repeatPassword: "",
   });
-
   const [errors, setErrors] = useState<FormErrors>({});
 
   const changeField = (event: ChangeEvent<HTMLInputElement>) => {
-    const fieldName = event.target.name as keyof LoginForm;
+    const fieldName = event.target.name as keyof RegisterForm;
     const { value } = event.target;
 
     setForm((prevForm) => ({
@@ -51,6 +53,10 @@ function LoginScreen() {
     const nextErrors: FormErrors = {};
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    if (!form.name.trim()) {
+      nextErrors.name = "Введите имя";
+    }
+
     if (!form.email.trim()) {
       nextErrors.email = "Введите email";
     } else if (!emailPattern.test(form.email)) {
@@ -63,10 +69,16 @@ function LoginScreen() {
       nextErrors.password = "Минимум 8 символов";
     }
 
+    if (!form.repeatPassword) {
+      nextErrors.repeatPassword = "Повторите пароль";
+    } else if (form.password !== form.repeatPassword) {
+      nextErrors.repeatPassword = "Пароли не совпадают";
+    }
+
     return nextErrors;
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const nextErrors = validateForm();
@@ -76,16 +88,22 @@ function LoginScreen() {
       return;
     }
 
-    const result = await dispatch(loginUser(form));
+    const result = await dispatch(
+      registerUser({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+      }),
+    );
 
-    if (loginUser.fulfilled.match(result)) {
-      navigate("/catalog");
+    if (registerUser.fulfilled.match(result)) {
+      navigate("/login");
     }
   };
 
   return (
     <section className={styles.loginSection}>
-      <h1 className={styles.title}>Login</h1>
+      <h1 className={styles.title}>Registration</h1>
 
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {authError && (
@@ -96,6 +114,25 @@ function LoginScreen() {
             {authError}
           </div>
         )}
+
+        <div className={styles.fieldGroup}>
+          <label className={styles.label} htmlFor="name">
+            Name
+          </label>
+          <InputText
+            id="name"
+            name="name"
+            type="text"
+            placeholder="Name"
+            value={form.name}
+            hasError={!!errors.name}
+            onChange={changeField}
+            disabled={isLoading}
+          />
+          {errors.name && (
+            <span className={styles.errorText}>{errors.name}</span>
+          )}
+        </div>
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="email">
@@ -135,39 +172,52 @@ function LoginScreen() {
           )}
         </div>
 
-        <button className={styles.forgotButton} type="button">
-          Забыли пароль?
-        </button>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label} htmlFor="repeatPassword">
+            Repeat password
+          </label>
+          <InputText
+            id="repeatPassword"
+            name="repeatPassword"
+            type="password"
+            placeholder="Password"
+            value={form.repeatPassword}
+            hasError={!!errors.repeatPassword}
+            onChange={changeField}
+            disabled={isLoading}
+          />
+          {errors.repeatPassword && (
+            <span className={styles.errorText}>{errors.repeatPassword}</span>
+          )}
+        </div>
 
         <div className={styles.submitWrapper}>
           <button
             type="submit"
             disabled={isLoading}
-            className={`${styles.submitButton} ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`${styles.submitButton} ${
+              isLoading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            {isLoading ? "Вход..." : "Войти"}
+            {isLoading ? "Регистрация..." : "Зарегистрироваться"}
           </button>
         </div>
       </form>
 
       <p className={styles.footerText}>
-        Нет аккаунта?{" "}
-        <button
-          className={styles.registerButton}
-          type="button"
-          onClick={() => navigate("/register")}
-        >
-          Зарегистрироваться
-        </button>
+        Уже есть аккаунт?{" "}
+        <Link className={styles.registerButton} to="/login">
+          Войти
+        </Link>
       </p>
     </section>
   );
 }
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <main className={styles.mainWrapper}>
-      <LoginScreen />
+      <RegisterScreen />
     </main>
   );
 }
