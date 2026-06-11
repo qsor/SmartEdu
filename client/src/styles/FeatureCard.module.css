@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+.FeatureCardWrapper {
+  @apply flex flex-col flex-wrap justify-between w-[420px] h-[320px] p-4 border-1 border-gray-500 rounded-xl transition-colors;
+  
+  &:hover, &.highlighted {
+    @apply bg-amber-500 border-black;
+    * {
+      @apply text-white;
+    }
+  }
+
+  &.highlighted:hover { 
+    @apply bg-amber-600;
+  }
+  
+}
+
+.FeatureCardIcon {
+  @apply h-[45px] w-[45px];
+}
+
+.FeatureCardTitle {
+  @apply place-self-start text-[24px] font-bold;
+
+}
+
+.FeatureCardDescription {
+  @apply text-[16px] text-gray-400;
+}
+
+.FCarrow {
+  @apply h-[25px];
+  &:hover  {
+    @apply invert-100;
+  }
+}
+.FeatureCardWrapper:has(+.highlighted) {
+  .FCarrow:hover {
+    @apply invert-0;
+  }
+}
