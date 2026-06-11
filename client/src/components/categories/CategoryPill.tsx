@@ -2,7 +2,8 @@ import React, { ReactNode } from 'react';
 import styles from '../../styles/CategoryPill.module.css';
 
 interface CategoryPillProps {
-  label: string;
+  label?: string;
+  children?: ReactNode;
   icon?: ReactNode | string;
   isActive?: boolean;
   onClick?: () => void;
@@ -10,10 +11,14 @@ interface CategoryPillProps {
 
 export default function CategoryPill({
   label,
+  children,
   icon,
   isActive = false,
   onClick,
 }: CategoryPillProps) {
+
+const content = children || label;
+
   return (
     <button
       type="button"
@@ -36,7 +41,7 @@ export default function CategoryPill({
         </span>
       )}
       
-      <span>{label}</span>
+      <span>{content}</span>
     </button>
   );
 }

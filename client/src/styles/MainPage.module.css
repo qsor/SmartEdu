@@ -1,0 +1,42 @@
+.main {
+  @apply bg-white;
+}
+
+.twoColumns {
+  @apply container mx-auto px-4 py-16;
+  @apply grid grid-cols-2 gap-12;
+}
+
+.heroLeft {
+  @apply flex flex-col justify-center;
+}
+
+.title {
+  @apply text-5xl font-bold text-gray-900 mb-4;
+}
+
+.orange {
+  @apply text-orange-500;
+}
+
+.subtitle {
+  @apply text-gray-500 text-lg mb-8;
+}
+
+.primaryButton {
+  @apply bg-orange-500 text-white px-8 py-3 rounded-lg font-medium;
+}
+
+.cardsGrid {
+  @apply grid grid-cols-2 gap-4;
+}
+
+.categoriesRow {
+  @apply container mx-auto px-4 py-12;
+  @apply flex justify-between items-center;
+  @apply border-t border-gray-200;
+}
+
+.pills {
+  @apply flex gap-3;
+}

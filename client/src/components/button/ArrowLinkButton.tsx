@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface ArrowLinkButtonProps {
   text?: string;
+  children?: ReactNode;
   to?: string;
   onClick?: () => void;
   className?: string;
@@ -10,11 +11,16 @@ interface ArrowLinkButtonProps {
 
 const ArrowLinkButton: React.FC<ArrowLinkButtonProps> = ({
   text = 'Все направления',
+  children,
   to,
   onClick,
   className = '',
 }) => {
   const navigate = useNavigate();
+
+  const buttonText = children || text || 'Все направления';
+
+  const ariaLabel = typeof buttonText === 'string' ? buttonText : undefined;
 
   const handleClick = () => {
     if (onClick) {
@@ -37,10 +43,10 @@ const ArrowLinkButton: React.FC<ArrowLinkButtonProps> = ({
         focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2
         ${className}
       `}
-      aria-label={text}
+      aria-label={ariaLabel}
     >
       <span className="transition-colors duration-300 group-hover:text-orange-600">
-        {text}
+        {buttonText}
       </span>
       <span className="flex items-center justify-center w-6 h-6 rounded-full bg-orange-50 border border-orange-500 transition-all duration-300 group-hover:translate-x-1 group-hover:bg-orange-100">
         <svg
