@@ -179,6 +179,10 @@ export class AuthService {
 
         return result
     }
+    
+    async revokeSession(sessionId: SessionId): Promise<void> {
+        await this.authRepository.revokeSession(sessionId)
+}
 
     private async createTokenPair({sessionId, userId}: {
         sessionId: SessionId,

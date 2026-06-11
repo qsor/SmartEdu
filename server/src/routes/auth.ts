@@ -1,15 +1,15 @@
-import {Response, Router} from "express";
-import {CookieOptions} from "express-serve-static-core";
-import {assertNever} from "../shared/index.js";
-import {Temporal} from "@js-temporal/polyfill";
-import {LoginResult, RefreshTokensResult, RegisterResult} from "../schema/results/auth.js";
-import {LoginRequestBody, RegisterRequestBody} from "../schema/http/auth.js";
-import {AuthService} from "../service/AuthService.js";
-import {UserService} from "../service/UserService.js";
+import { Response, Router } from "express";
+import { CookieOptions } from "express-serve-static-core";
+import { assertNever } from "../shared/index.js";
+import { Temporal } from "@js-temporal/polyfill";
+import { LoginResult, RefreshTokensResult, RegisterResult } from "../schema/results/auth.js";
+import { LoginRequestBody, RegisterRequestBody } from "../schema/http/auth.js";
+import { AuthService } from "../service/AuthService.js";
+import { UserService } from "../service/UserService.js";
 import Duration = Temporal.Duration;
 import Now = Temporal.Now;
-import {toMyselfUser} from "../schema/types/User.js";
-import {LoginResponse, RefreshTokensResponse, RegisterResponse} from "../schema/responses/auth.js";
+import { toMyselfUser } from "../schema/types/User.js";
+import { LoginResponse, RefreshTokensResponse, RegisterResponse } from "../schema/responses/auth.js";
 
 const REFRESH_TOKEN_COOKIE = 'refreshToken' as const
 // Если клиент получает хедер X-New-Access-Token, то он должен обновить его значение (в localStorage)
@@ -91,7 +91,7 @@ export function authRoutes(
         if (result.status === 'InvalidEmail') {
             return res
                 .status(400)
-                .send({status: 'InvalidEmail'})
+                .send({ status: 'InvalidEmail' })
         }
 
         assertNever(result)
@@ -123,12 +123,34 @@ export function authRoutes(
                 .status(200)
                 .cookie(...refreshTokenCookie(config, result.newTokenPair.refreshToken))
                 .header(NEW_ACCESS_TOKEN_HEADER, result.newTokenPair.accessToken)
-                .send({status: 'Success'})
+                .send({ status: 'Success' })
         }
 
         return res
             .status(400)
             .send(result)
+    })
+
+    router.post('/auth/logout', async (req, res) => {
+        if (req.actor.isAuthenticated) {
+            await authService.revokeSession(
+                req.actor.sessionId
+            )
+        }
+
+        return res
+            .clearCookie(
+                REFRESH_TOKEN_COOKIE,
+            )
+
+            .header(
+                DELETE_ACCESS_TOKEN_HEADER,
+                DELETE_ACCESS_TOKEN_HEADER_VALUE
+            )
+            .status(200)
+            .send({
+                status: 'Success'
+            })
     })
 }
 
