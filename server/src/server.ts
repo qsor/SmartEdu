@@ -1,11 +1,11 @@
 import "dotenv/config";
-import express, {Router} from "express";
+import express, { Router } from "express";
 import cors from "cors";
-import {env} from "./config/env.js";
+import { env } from "./config/env.js";
 import cookieParser from "cookie-parser";
-import {bootstrap} from "./bootstrap.js";
-import {createAuthMiddleware} from "./middleware/authMiddleware.js";
-import {allRoutes} from "./routes/all.js";
+import { bootstrap } from "./bootstrap.js";
+import { createAuthMiddleware } from "./middleware/authMiddleware.js";
+import { allRoutes } from "./routes/all.js";
 
 const {
     authRepository,
@@ -14,6 +14,7 @@ const {
     refreshJwtService,
     authService,
     userService,
+    courseService,
 } = await bootstrap()
 
 
@@ -34,7 +35,7 @@ expressApp.use(cookieParser(env.cookieSecret))
 
 expressApp.use(express.json())
 
-expressApp.use(express.urlencoded({extended: true}))
+expressApp.use(express.urlencoded({ extended: true }))
 
 expressApp.get("/", (_req, res) => {
     res.json({
@@ -45,7 +46,7 @@ expressApp.get("/", (_req, res) => {
 expressApp.use(createAuthMiddleware(authService))
 
 const apiRouter = Router()
-allRoutes(apiRouter, authService, userService, {
+allRoutes(apiRouter, authService, userService, courseService, {
     secureCookie: env.secureCookie,
     refreshTokenCookieLifetime: env.refreshTokenCookieLifetime,
 })
