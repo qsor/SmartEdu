@@ -1,5 +1,6 @@
 import { CourseRepository } from "../repository/CourseRepository.js";
-import { InternalCourse } from "../schema/types/Course.js";
+import {CourseDetails, CourseId, InternalCourse} from "../schema/types/Course.js";
+import {UserId} from "../schema/types/User.js";
 
 export class CourseService {
     constructor(
@@ -13,5 +14,10 @@ export class CourseService {
 
     async getCourseById(id: string): Promise<InternalCourse | null> {
         return this.courseRepository.getById(id);
+    }
+
+    async getCourseDetails(forUser: UserId | null, id: CourseId): Promise<CourseDetails | null> {
+        // todo
+        throw new Error('Not yet implemented')
     }
 }
