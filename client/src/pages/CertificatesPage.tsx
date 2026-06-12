@@ -1,0 +1,141 @@
+import React, { useState } from 'react';
+import CertificateCard from '../components/CertificateCard';
+import { Footer } from '../components/Footer';
+
+interface Certificate {
+  id: number;
+  title: string;
+  category: string;
+  status: 'completed' | 'in-progress' | 'unavailable';
+  progress: number;
+  receivedDate?: string;
+}
+
+export default function CertificatesPage() {
+  const [certificates] = useState<Certificate[]>([
+    {
+      id: 1,
+      title: 'Основы JavaScript',
+      category: 'Frontend разработка',
+      status: 'completed',
+      progress: 100,
+      receivedDate: '12.06.2026',
+    },
+    {
+      id: 2,
+      title: 'Основы JavaScript',
+      category: 'Frontend разработка',
+      status: 'in-progress',
+      progress: 75,
+    },
+    {
+      id: 3,
+      title: 'Основы JavaScript',
+      category: 'Frontend разработка',
+      status: 'unavailable',
+      progress: 20,
+    },
+  ]);
+
+  const stats = {
+    total: certificates.filter((c) => c.status === 'completed').length,
+    unavailable: certificates.filter((c) => c.status === 'unavailable').length,
+    inProgress: certificates.filter((c) => c.status === 'in-progress').length,
+  };
+
+  const handleDownload = (certificateId: number) => {
+    console.log(`Скачивание сертификата ${certificateId}`);
+    // Здесь будет логика скачивания PDF
+  };
+
+  const handleContinue = (certificateId: number) => {
+    console.log(`Продолжить курс ${certificateId}`);
+    // Здесь будет переход к курсу
+  };
+
+  return (
+    <div className="w-full pt-10 pb-10">
+      {/* Заголовок страницы */}
+      <div className="flex justify-between items-start mb-10">
+        <div>
+          <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Сертификаты</h1>
+          <p className="text-lg text-gray-500">
+            Здесь отображаются сертификаты за пройденные курсы
+          </p>
+        </div>
+        <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-semibold transition-colors">
+          Все курсы
+        </button>
+      </div>
+
+      {/* Статистика */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-center gap-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div>
+            <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+            <p className="text-gray-600">Всего сертификатов</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-center gap-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div>
+            <p className="text-3xl font-bold text-gray-900">{stats.unavailable}</p>
+            <p className="text-gray-600">недоступен</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-center gap-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div>
+            <p className="text-3xl font-bold text-gray-900">{stats.inProgress}</p>
+            <p className="text-gray-600">В процессе</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Карточки сертификатов */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {certificates.map((cert) => (
+          <CertificateCard
+            key={cert.id}
+            title={cert.title}
+            category={cert.category}
+            status={cert.status}
+            progress={cert.progress}
+            receivedDate={cert.receivedDate}
+            onDownload={() => handleDownload(cert.id)}
+            onContinue={() => handleContinue(cert.id)}
+          />
+        ))}
+      </div>
+
+      <Footer />
+    </div>
+  );
+}

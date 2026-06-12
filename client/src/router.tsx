@@ -1,11 +1,18 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "./App";
+
+// Публичные страницы
+import MainPage from "@/pages/MainPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
+
+// Защищенные страницы
 import Catalog from "@/pages/Catalog";
-import MainPage from "@/pages/MainPage";
-import CourseDetails from "@/pages/CourseDetails";
 import ProgressPage from "@/pages/ProgressPage";
+import CertificatesPage from "@/pages/CertificatesPage";
+import CourseDetails from "@/pages/CourseDetails";
+
+// Layouts
 import MainLayout from "@/components/layouts/MainLayout";
 
 export const router = createBrowserRouter([
@@ -13,7 +20,7 @@ export const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
-      // 1. При заходе на корень сайта сразу кидаем на /dashboard
+      // При заходе на корень — сразу редирект на дашборд
       {
         index: true,
         element: <Navigate to="/dashboard" replace />,
@@ -28,14 +35,13 @@ export const router = createBrowserRouter([
         element: <RegisterPage />,
       },
 
-      // 2. ВРЕМЕННО УБРАЛИ ProtectedRoute! 
-      // Теперь MainLayout (и Сайдбар) откроется у любого гостя.
+      // === БЕЗ ProtectedRoute — для тестов ===
       {
         element: <MainLayout />,
         children: [
           {
             path: "dashboard",
-            element: <MainPage />, 
+            element: <MainPage />,
           },
           {
             path: "catalog",
@@ -46,10 +52,19 @@ export const router = createBrowserRouter([
             element: <ProgressPage />,
           },
           {
+            path: "certificates",
+            element: <CertificatesPage />,
+          },
+          {
             path: "course/:id",
             element: <CourseDetails />,
           },
         ],
+      },
+
+      {
+        path: "*",
+        element: <Navigate to="/dashboard" replace />,
       },
     ],
   },
