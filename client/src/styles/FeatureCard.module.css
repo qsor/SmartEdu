@@ -1,6 +1,5 @@
-
 .FeatureCardWrapper {
-  @apply flex flex-col flex-wrap justify-between w-[420px] h-[320px] p-4 border-1 border-gray-500 rounded-xl transition-colors;
+  @apply flex flex-col flex-wrap justify-between w-[420px] h-[320px] p-4 border border-gray-500 rounded-xl transition-colors;
   
   &:hover, &.highlighted {
     @apply bg-amber-500 border-black;
@@ -21,7 +20,6 @@
 
 .FeatureCardTitle {
   @apply place-self-start text-[24px] font-bold;
-
 }
 
 .FeatureCardDescription {
@@ -31,9 +29,10 @@
 .FCarrow {
   @apply h-[25px];
   &:hover  {
-    @apply invert-100;
+    @apply invert;
   }
 }
+
 .FeatureCardWrapper:has(+.highlighted) {
   .FCarrow:hover {
     @apply invert-0;
