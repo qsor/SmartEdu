@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./MainPage.module.css";
+import styles from "../styles/MainPage.module.css";
 
 import { FeatureCard } from "../components/FeatureCard";
 import CategoryPill from "../components/categories/CategoryPill";
