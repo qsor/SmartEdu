@@ -15,12 +15,18 @@ export const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
-      
+      // 1. При заходе на корень сайта (localhost:5173/) сразу кидаем на дашборд
+      {
+        index: true,
+        element: <Navigate to="/dashboard" replace />,
+      },
+
+      // 2. Публичные страницы (если нужен отдельный лендинг, можно оставить)
       {
         element: <PublicLayout />,
         children: [
           {
-            index: true, 
+            path: "home",
             element: <MainPage />,
           },
         ],
@@ -36,12 +42,22 @@ export const router = createBrowserRouter([
         element: <RegisterPage />,
       },
 
+      // 3. Защищенные страницы (здесь рендерится MainLayout с Сайдбаром и Хедером)
       {
         element: <ProtectedRoute />,
         children: [
           {
             element: <MainLayout />,
             children: [
+              {
+                index: true,
+                element: <Navigate to="/dashboard" replace />,
+              },
+              // Добавили Дашборд внутрь MainLayout
+              {
+                path: "dashboard",
+                element: <MainPage />, 
+              },
               {
                 path: "catalog",
                 element: <Catalog />,
@@ -54,14 +70,15 @@ export const router = createBrowserRouter([
                 path: "course/:id",
                 element: <CourseDetails />,
               },
-            ],
+              ],
           },
         ],
       },
       
+      
       {
         path: "*",
-        element: <Navigate to="/" replace />,
+        element: <Navigate to="/dashboard" replace />,
       },
     ],
   },
