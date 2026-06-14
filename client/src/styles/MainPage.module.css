@@ -28,7 +28,7 @@
 }
 
 .cardsGrid {
-  @apply grid grid-cols-2 gap-4;
+  @apply grid grid-cols-1 xl:grid-cols-2 gap-4 w-full justify-items-center xl:justify-items-start;
 }
 
 .categoriesRow {
