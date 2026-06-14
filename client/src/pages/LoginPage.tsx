@@ -135,7 +135,11 @@ function LoginScreen() {
           )}
         </div>
 
-        <button className={styles.forgotButton} type="button">
+        <button 
+          className={styles.forgotButton} 
+          type="button"
+          onClick={() => navigate("/reset-password")} // Добавь этот переход
+        >
           Забыли пароль?
         </button>
 

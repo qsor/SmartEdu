@@ -5,6 +5,7 @@ import App from "./App";
 import MainPage from "@/pages/MainPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 
 // Защищенные страницы
 import Catalog from "@/pages/Catalog";
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
       {
         path: "register",
         element: <RegisterPage />,
+      },
+      {
+        path: "reset-password",
+        element: <ResetPasswordPage />,
       },
 
       // === БЕЗ ProtectedRoute — для тестов ===

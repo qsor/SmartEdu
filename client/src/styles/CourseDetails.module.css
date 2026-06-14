@@ -1,10 +1,7 @@
-/* client/src/styles/CourseDetails.module.css */
-
 .container {
   @apply w-full pt-4;
 }
 
-/* Изменили .grid на .courseGrid */
 .courseGrid {
   @apply grid grid-cols-1 lg:grid-cols-3 gap-8;
 }
