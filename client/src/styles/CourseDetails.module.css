@@ -1,0 +1,42 @@
+/* client/src/styles/CourseDetails.module.css */
+
+.container {
+  @apply w-full pt-4;
+}
+
+/* Изменили .grid на .courseGrid */
+.courseGrid {
+  @apply grid grid-cols-1 lg:grid-cols-3 gap-8;
+}
+
+.leftColumn {
+  @apply lg:col-span-2 flex flex-col gap-4;
+}
+
+.rightColumn {
+  @apply lg:col-span-1 flex flex-col gap-4;
+}
+
+.imagePlaceholder {
+  @apply w-full h-[280px] bg-[#a3a3a3] rounded-xl flex items-center justify-center text-white text-xl font-medium;
+}
+
+.guestText {
+  @apply text-xs text-red-500 text-center px-2 italic mt-2;
+}
+
+.loginLink {
+  @apply underline hover:text-red-600 transition-colors;
+}
+
+.backButton {
+  @apply inline-flex items-center gap-2 mb-6 text-sm font-medium text-gray-600 hover:text-orange-500 transition-colors cursor-pointer bg-transparent border-none p-0 focus:outline-none;
+}
+
+.backButtonIcon {
+  @apply w-6 h-6 transition-transform duration-200;
+}
+
+.backButton:hover .backButtonIcon {
+  @apply -translate-x-1;
+}

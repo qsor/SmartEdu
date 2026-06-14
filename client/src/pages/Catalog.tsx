@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CatalogCourseCard from '../components/CatalogCourseCard';
 
 const mockCourses = [
@@ -56,13 +57,14 @@ interface Course {
 
 export default function CatalogPage() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setCourses(mockCourses);
   }, []);
 
-  const handleCardClick = (courseTitle: string) => {
-    console.log(`Клик по курсу: ${courseTitle}`);
+  const handleCardClick = (courseId: number) => {
+    navigate(`/course/${courseId}`);
   };
 
   return (
@@ -75,7 +77,7 @@ export default function CatalogPage() {
           <CatalogCourseCard
             key={course.id}
             {...course}
-            onCardClick={() => handleCardClick(course.title)}
+            onCardClick={() => handleCardClick(course.id)}
           />
         ))}
       </div>
