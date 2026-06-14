@@ -1,45 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../store/store'; 
+import { logout as logoutAction } from '../store/slices/authSlice';
+import { AuthUser } from '../store/slices/authThunks';
 
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  avatar?: string;
-}
+// Экспортируем правильный тип User (совпадает с ответом бэкенда)
+export type User = AuthUser;
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        localStorage.removeItem('user');
-      }
-    }
-    setLoading(false);
-  }, []);
-
-  const login = (userData: User) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
-  };
+  const dispatch = useDispatch<AppDispatch>();
+  
+  //  читаем isLoading вместо loading
+  const { user, isAuthenticated, isLoading, error } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+    // Вызываем action из authSlice, который очистит Redux и localStorage
+    dispatch(logoutAction());
   };
 
-  const isAuthenticated = !!user;
-  const isGuest = !user && !loading;
+  //  isLoading
+  const isGuest = !isAuthenticated && !isLoading;
 
   return {
     user,
-    loading,
-    login,
+    isLoading, // возвращаем isLoading во внешнюю среду
+    error,
     logout,
     isAuthenticated,
     isGuest,

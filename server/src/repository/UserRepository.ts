@@ -1,108 +1,87 @@
-import {InternalUser, toMyselfUser, UserId} from "../schema/types/User.js";
-import {CreateUserResult} from "../schema/results/auth.js";
-import {EditUserResponse} from "../schema/responses/user.js";
+import * as crypto from "node:crypto";
+import { PrismaClient } from "@prisma/client";
+import { InternalUser, toMyselfUser, UserId } from "../schema/types/User.js";
+import { CreateUserResult } from "../schema/results/auth.js";
+import { EditUserResponse } from "../schema/responses/user.js";
+
+const prisma = new PrismaClient();
 
 export class UserRepository {
-    private users: InternalUser[] = []
-
-    async createUser(params: {
-        firstName: string
-        lastName: string | null
-        passwordHash: string
-        email: string | null
-        phoneNumber: string | null
-    }): Promise<CreateUserResult> {
-        if (params.email !== null && await this.existsByEmail(params.email))
-            return { status: 'Conflict', conflictOn: 'Email' }
-        if (params.phoneNumber !== null && await this.existsByPhoneNumber(params.phoneNumber))
-            return { status: 'Conflict', conflictOn: 'PhoneNumber' }
-
-        const user: InternalUser = {
-            id: crypto.randomUUID(),
-            firstName: params.firstName,
-            lastName: params.lastName,
-            passwordHash: params.passwordHash,
-            email: params.email,
-            phoneNumber: params.phoneNumber,
+  async createUser(params: {
+    firstName: string
+    lastName: string | null
+    passwordHash: string
+    email: string | null
+    phoneNumber: string | null
+  }): Promise<CreateUserResult> {
+    try {
+      const user = await prisma.user.create({
+        data: {
+          id: crypto.randomUUID(),
+          firstName: params.firstName,
+          lastName: params.lastName,
+          passwordHash: params.passwordHash,
+          email: params.email,
+          phoneNumber: params.phoneNumber,
+        },
+      });
+      return { status: 'Success', user: user as InternalUser };
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        if (error.meta?.target?.includes('email')) {
+          return { status: 'Conflict', conflictOn: 'Email' };
         }
-
-        this.users.push(user)
-
-        return { status: 'Success', user: user }
-
-        // INSERT INTO users (first_name, last_name, password_hash, email) values (?, ?, ?, ?) RETURNING *
-        // throw new Error('Not yet implemented')
-    }
-
-    async exists(id: UserId): Promise<boolean> {
-        return this.users.some(it => it.id === id)
-
-        // SELECT 1 FROM users WHERE id = ?
-        // throw new Error('Not yet implemented')
-    }
-
-    async existsByEmail(email: string): Promise<boolean> {
-        return this.users.some(it => it.email === email)
-
-        // SELECT 1 FROM users WHERE email = ?
-        // throw new Error('Not yet implemented')
-    }
-
-    async existsByPhoneNumber(phoneNumber: string): Promise<boolean> {
-        return this.users.some(it => it.phoneNumber === phoneNumber)
-
-        // SELECT 1 FROM users WHERE phone_number = ?
-        // throw new Error('Not yet implemented')
-    }
-
-    async getUser(id: UserId): Promise<InternalUser | null> {
-        return this.users.find(it => it.id === id) ?? null
-
-        // SELECT FROM users WHERE id = ?
-        // throw new Error('Not yet implemented')
-    }
-
-    async getUserByEmail(email: string): Promise<InternalUser | null> {
-        return this.users.find(it => it.email === email) ?? null
-
-        // SELECT FROM users WHERE email = ?
-        // throw new Error('Not yet implemented')
-    }
-
-    async getUserByPhoneNumber(phoneNumber: string): Promise<InternalUser | null> {
-        return this.users.find(it => it.phoneNumber === phoneNumber) ?? null
-
-        // SELECT FROM users WHERE phone_number = ?
-        // throw new Error('Not yet implemented')
-    }
-
-    async editUser(id: UserId, fields: {
-        firstName?: string
-        lastName?: string | null
-        email?: string | null
-    }): Promise<EditUserResponse> {
-        if (fields.email) {
-            if (await this.existsByEmail(fields.email)) {
-                return {status: 'EmailAlreadyTaken'}
-            }
+        if (error.meta?.target?.includes('phoneNumber')) {
+          return { status: 'Conflict', conflictOn: 'PhoneNumber' };
         }
+      }
+      throw error;
+    }
+  }
 
-        const index = this.users.findIndex(it => it.id === id)
-        if (index === -1)
-            throw new Error('User not found')
+  async exists(id: UserId): Promise<boolean> {
+    return (await prisma.user.count({ where: { id } })) > 0;
+  }
 
-        const [user] = this.users.splice(index, 1)
-        const newUser: InternalUser = {...user, ...fields}
-        this.users.push(newUser)
+  async existsByEmail(email: string): Promise<boolean> {
+    return (await prisma.user.count({ where: { email } })) > 0;
+  }
 
-        return {status: 'Success', myself: toMyselfUser(newUser)}
+  async existsByPhoneNumber(phoneNumber: string): Promise<boolean> {
+    return (await prisma.user.count({ where: { phoneNumber } })) > 0;
+  }
 
-        // UPDATE users SET ... = ... WHERE id = ?
-        // throw new Error('Not yet implemented')
+  async getUser(id: UserId): Promise<InternalUser | null> {
+    return (await prisma.user.findUnique({ where: { id } })) as InternalUser | null;
+  }
+
+  async getUserByEmail(email: string): Promise<InternalUser | null> {
+    return (await prisma.user.findUnique({ where: { email } })) as InternalUser | null;
+  }
+
+  async getUserByPhoneNumber(phoneNumber: string): Promise<InternalUser | null> {
+    return (await prisma.user.findUnique({ where: { phoneNumber } })) as InternalUser | null;
+  }
+
+  async editUser(id: UserId, fields: {
+    firstName?: string; lastName?: string | null; email?: string | null
+  }): Promise<EditUserResponse> {
+    if (fields.email) {
+      const existingUser = await prisma.user.findFirst({
+        where: { email: fields.email, id: { not: id } },
+      });
+      if (existingUser) return { status: 'EmailAlreadyTaken' };
     }
 
-    async deleteUser(id: UserId): Promise<void> {
-        // DELETE FROM users WHERE id = ?
-        throw new Error('Not yet implemented')
+    try {
+      const user = await prisma.user.update({ where: { id }, data: fields });
+      return { status: 'Success', myself: toMyselfUser(user as InternalUser) };
+    } catch (error) {
+      throw new Error('User not found');
     }
+  }
+
+  async deleteUser(id: UserId): Promise<void> {
+    await prisma.user.delete({ where: { id } });
+  }
 }

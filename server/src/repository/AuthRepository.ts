@@ -1,85 +1,61 @@
 import * as crypto from "node:crypto";
-import {Temporal} from "@js-temporal/polyfill";
-import {UserId} from "../schema/types/User.js";
-import {RefreshToken, Session, SessionId, TokenPair} from "../schema/types/JWT.js";
-import {RefreshTokensResult} from "../schema/results/auth.js";
-import Instant = Temporal.Instant;
+import { Temporal } from "@js-temporal/polyfill";
+import { PrismaClient } from "@prisma/client";
+import { UserId } from "../schema/types/User.js";
+import { RefreshToken, Session, SessionId, TokenPair } from "../schema/types/JWT.js";
+import { RefreshTokensResult } from "../schema/results/auth.js";
+
+const prisma = new PrismaClient();
+
+const hashToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex');
 
 export class AuthRepository {
-    private sessions: (Session & {
-        refreshTokensSHA256: Set<string>,
-    })[] = []
+  async createSession(params: {
+    sessionId: SessionId; userId: UserId;
+    currentRefreshToken: RefreshToken; createdAt: Temporal.Instant;
+  }): Promise<Session> {
+    const session = await prisma.session.create({
+      data: {
+        id: params.sessionId,
+        userId: params.userId,
+        currentRefreshToken: hashToken(params.currentRefreshToken),
+        createdAt: new Date(params.createdAt.epochMilliseconds),
+      },
+    });
 
-    async createSession(params: {
-        sessionId: SessionId
-        userId: UserId
-        currentRefreshToken: RefreshToken
-        createdAt: Instant
-    }): Promise<Session> {
-        const session: Session = {
-            id: params.sessionId,
-            userId: params.userId,
-            createdAt: params.createdAt,
-        }
+    return {
+      id: session.id,
+      userId: session.userId,
+      createdAt: Temporal.Instant.fromEpochMilliseconds(session.createdAt.getTime()),
+    };
+  }
 
-        if (this.sessions.some(it => it.id === params.sessionId))
-            throw new Error(`Duplicate session id ${params.sessionId}`)
+  async isRefreshTokenValidForSession(sessionId: SessionId, refreshToken: RefreshToken): Promise<boolean> {
+    const session = await prisma.session.findUnique({ where: { id: sessionId } });
+    return session ? session.currentRefreshToken === hashToken(refreshToken) : false;
+  }
 
-        const currentRefreshTokenSHA256 = crypto.hash('sha256', params.currentRefreshToken, 'hex')
-        this.sessions.push({...session, refreshTokensSHA256: new Set([currentRefreshTokenSHA256])})
+  async refreshTokens(sessionId: SessionId, oldRefreshToken: RefreshToken, newTokenPair: TokenPair): Promise<RefreshTokensResult> {
+    const session = await prisma.session.findUnique({ where: { id: sessionId } });
 
-        return session
-
-        // insert ...
-        // throw new Error('Not yet implemented')
+    if (!session) return { status: 'Failed', reason: 'Expired' };
+    if (session.currentRefreshToken !== hashToken(oldRefreshToken)) {
+      return { status: 'CompromisedSession' };
     }
 
-    async isRefreshTokenValidForSession(sessionId: SessionId, refreshToken: RefreshToken): Promise<boolean> {
-        const refreshTokenSHA256 = crypto.hash('sha256', refreshToken, 'hex')
+    await prisma.session.update({
+      where: { id: sessionId },
+      data: { currentRefreshToken: hashToken(newTokenPair.refreshToken) },
+    });
 
-        const session = this.sessions.find(it => it.id === sessionId)
-        if (!session)
-            return false
+    return { status: 'Success', newTokenPair };
+  }
 
-        return session.refreshTokensSHA256.has(refreshTokenSHA256)
+  async revokeSession(sessionId: SessionId): Promise<void> {
+    await prisma.session.delete({ where: { id: sessionId } });
+  }
 
-        // (select ...) === refreshTokenSHA256
-        // throw new Error('Not yet implemented')
-    }
-
-    async refreshTokens(sessionId: SessionId, oldRefreshToken: RefreshToken, newTokenPair: TokenPair): Promise<RefreshTokensResult> {
-        const oldRefreshTokenSHA256 = crypto.hash('sha256', oldRefreshToken, 'hex')
-        const newRefreshTokenSHA256 = crypto.hash('sha256', newTokenPair.refreshToken, 'hex')
-
-        const session = this.sessions.find(it => it.id === sessionId)
-        if (!session)
-            return {status: 'Failed', reason: 'Expired'}
-
-        // todo реализовать в sql
-        // const hasOld = session.refreshTokensSHA256.has(oldRefreshTokenSHA256)
-        // if (!hasOld)
-        //     return {status: 'CompromisedRefreshToken'}
-
-        session.refreshTokensSHA256.delete(oldRefreshTokenSHA256)
-        session.refreshTokensSHA256.add(newRefreshTokenSHA256)
-        return {status: 'Success', newTokenPair}
-
-        // update set current_refresh_token = currentRefreshTokenSHA256 where ...
-        // throw new Error('Not yet implemented')
-    }
-
-    async revokeSession(sessionId: SessionId): Promise<void> {
-        const index = this.sessions.findIndex(it => it.id === sessionId)
-        if (index === -1)
-            return
-        this.sessions.splice(index, 1)
-
-        // delete ... where id = ...
-        // throw new Error('Not yet implemented')
-    }
-
-    async revokeAllSessionsForUser(userId: UserId) {
-        // delete ... where user_id = ...
-        throw new Error('Not yet implemented')
-    }
+  async revokeAllSessionsForUser(userId: UserId): Promise<void> {
+    await prisma.session.deleteMany({ where: { userId } });
+  }
 }

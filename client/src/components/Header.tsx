@@ -16,6 +16,9 @@ export const Header: React.FC<HeaderProps> = ({ avatar, isFullWidth=false }) => 
   const { user, isAuthenticated, isGuest, logout } = useAuth();
   const navigate = useNavigate();
 
+  // 
+  console.log("Header auth state:", { user, isAuthenticated, isGuest });
+
   const handleLoginClick = () => {
     navigate("/login");
   };
@@ -26,6 +29,11 @@ export const Header: React.FC<HeaderProps> = ({ avatar, isFullWidth=false }) => 
     navigate("/");
   };
 
+  // Формируем имя для DropdownMenu (Имя + Фамилия)
+  const displayName = user 
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim() 
+    : "Пользователь";
+
   return (
     <header className={`fixed right-0 top-0 z-20 h-[56px] bg-orange-500 flex items-center px-6 transition-all ${isFullWidth ? "left-0" : "left-[230px]"}`}>
       <div className="mx-auto w-full max-w-[520px]">
@@ -34,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({ avatar, isFullWidth=false }) => 
 
       <div className="absolute right-6 flex items-center gap-2">
         {/* Для авторизованных пользователей */}
-        {isAuthenticated && (
+        {isAuthenticated && user && (
           <>
             <button
               type="button"
@@ -56,15 +64,16 @@ export const Header: React.FC<HeaderProps> = ({ avatar, isFullWidth=false }) => 
                 aria-expanded={isMenuOpen}
               >
                 <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center overflow-hidden">
-                  {user?.avatar || avatar ? (
+                  {user.avatar || avatar ? (
                     <img
-                      src={user?.avatar ?? avatar ?? ""}
+                      src={user.avatar ?? avatar ?? ""}
                       className="h-8 w-8 rounded-full object-cover"
                       alt="avatar"
                     />
                   ) : (
                     <span className="text-sm font-bold text-orange-500">
-                      {user?.name?.charAt(0).toUpperCase() || "?"}
+                      {/* берем первую букву firstName */}
+                      {user.firstName?.charAt(0).toUpperCase() || "?"}
                     </span>
                   )}
                 </div>
@@ -82,8 +91,8 @@ export const Header: React.FC<HeaderProps> = ({ avatar, isFullWidth=false }) => 
               {isMenuOpen && (
                 <div className="absolute right-0 top-full z-50 mt-2">
                   <DropdownMenu 
-                    userName={user?.name || "Имя Фамилия"}
-                    userAvatar={user?.avatar || avatar}
+                    userName={displayName || "Имя Фамилия"}
+                    userAvatar={user.avatar || avatar}
                     onLogout={handleLogout}
                   />
                 </div>
@@ -93,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({ avatar, isFullWidth=false }) => 
         )}
 
         {/* Для гостей */}
-        {isGuest && (
+        {!isAuthenticated && (
           <button
             onClick={handleLoginClick}
             className="px-4 py-2 bg-white text-orange-500 rounded-md hover:bg-orange-50 transition-colors font-medium text-sm"

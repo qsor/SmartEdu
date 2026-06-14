@@ -1,30 +1,45 @@
-import { clearAuth } from "@/api/tokenStorage";
-import { createSlice } from "@reduxjs/toolkit";
-import { AuthUser, loginUser, registerUser } from "./authThunks";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { loginUser, registerUser, AuthUser } from "./authThunks";
 
-type AuthState = {
+// В интерфейсе строго isLoading
+export interface AuthState {
   user: AuthUser | null;
-  token: string | null;
-  isLoading: boolean;
+  isAuthenticated: boolean;
+  isLoading: boolean; 
   error: string | null;
+}
+
+const getInitialUser = (): AuthUser | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    return null;
+  }
 };
 
+// В initialState тоже isLoading
 const initialState: AuthState = {
-  user: null,
-  token: localStorage.getItem("accessToken"),
+  user: getInitialUser(),
+  isAuthenticated: typeof window !== "undefined" && !!localStorage.getItem("accessToken"),
   isLoading: false,
   error: null,
 };
 
-export const authSlice = createSlice({
+const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
       state.user = null;
-      state.token = null;
+      state.isAuthenticated = false;
       state.error = null;
-      clearAuth();
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+      }
     },
     clearAuthError: (state) => {
       state.error = null;
@@ -32,29 +47,39 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loginUser.pending, (state) => {
-        ((state.isLoading = true), (state.error = null));
+      // Login
+      .addCase(loginUser.pending, (state) => { 
+        state.isLoading = true;
+        state.error = null; 
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(loginUser.fulfilled, (state, action: PayloadAction<any>) => {
         state.isLoading = false;
+        state.isAuthenticated = true;
         state.user = action.payload.user;
-        state.token = action.payload.accessToken;
+        if (typeof window !== "undefined" && action.payload.user) {
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
+        }
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload ?? "login error";
+        state.error = action.payload as string || "Ошибка входа";
       })
-      .addCase(registerUser.pending, (state) => {
-        ((state.isLoading = true), (state.error = null));
+      // Register
+      .addCase(registerUser.pending, (state) => { 
+        state.isLoading = true;
+        state.error = null; 
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(registerUser.fulfilled, (state, action: PayloadAction<any>) => {
         state.isLoading = false;
+        state.isAuthenticated = true;
         state.user = action.payload.user;
-        state.token = action.payload.accessToken;
+        if (typeof window !== "undefined" && action.payload.user) {
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
+        }
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload ?? "registration error";
+        state.error = action.payload as string || "Ошибка регистрации";
       });
   },
 });

@@ -1,74 +1,52 @@
 import api from "@/api/instance";
-import { setTokens } from "@/api/tokenStorage";
+import { setTokens, getRefreshToken } from "@/api/tokenStorage";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
-export type AuthUser = {
-  id: number;
-  name: string;
-  email: string;
-  avatar?: string;
+export type AuthUser = { 
+  id: string; 
+  firstName: string; 
+  lastName?: string | null; 
+  email?: string | null; 
+  avatar?: string; 
 };
 
-export type LoginCredentials = {
-  email: string;
-  password: string;
+export type LoginCredentials = { email: string; password: string };
+export type RegisterCredentials = { name: string; email: string; password: string };
+
+export type AuthResponse = { 
+  user: AuthUser; 
+  accessToken: string; 
+  refreshToken?: string; 
 };
 
-export type RegisterCredentials = {
-  name: string;
-  email: string;
-  password: string;
-};
+export const loginUser = createAsyncThunk<AuthResponse, LoginCredentials, { rejectValue: string }>(
+  "auth/loginUser", async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/auth/login", credentials);
+      const accessToken = response.headers['x-new-access-token'] || response.data.accessToken;
+      const refreshToken = getRefreshToken() || response.data.refreshToken;
+      if (accessToken) setTokens(accessToken, refreshToken || undefined);
 
-export type AuthResponse = {
-  user: AuthUser;
-  accessToken: string;
-  refreshToken?: string;
-};
+      const user = response.data.myself || response.data.user;
 
-export const loginUser = createAsyncThunk<
-  AuthResponse,
-  LoginCredentials,
-  { rejectValue: string }
->("auth/loginUser", async (credentials, { rejectWithValue }) => {
-  try {
-    // mock if need
-    // await new Promise((resolve) => setTimeout(resolve, 500));
-    // return {
-    //   user: {
-    //     id: 1,
-    //     name: credentials.email.split("@")[0],
-    //     email: credentials.email,
-    //     avatar: "",
-    //   },
-    //   token: "mock-token",
-    // };
-
-    const response = await api.post<AuthResponse>("/auth/login", credentials);
-
-    setTokens(response.data.accessToken, response.data.refreshToken);
-
-    return response.data;
-  } catch {
-    return rejectWithValue("incorrect email or password");
-  }
+      return { user, accessToken, refreshToken };
+    } catch (err: any) { 
+      return rejectWithValue(err.response?.data?.message || "incorrect email or password"); 
+    }
 });
 
-export const registerUser = createAsyncThunk<
-  AuthResponse,
-  RegisterCredentials,
-  { rejectValue: string }
->("auth/registerUser", async (credentials, { rejectWithValue }) => {
-  try {
-    const response = await api.post<AuthResponse>(
-      "/auth/register",
-      credentials,
-    );
+export const registerUser = createAsyncThunk<AuthResponse, RegisterCredentials, { rejectValue: string }>(
+  "auth/registerUser", async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/auth/register", credentials);
+      const accessToken = response.headers['x-new-access-token'] || response.data.accessToken;
+      const refreshToken = getRefreshToken() || response.data.refreshToken;
+      if (accessToken) setTokens(accessToken, refreshToken || undefined);
 
-    setTokens(response.data.accessToken, response.data.refreshToken);
+      const user = response.data.myself || response.data.user;
 
-    return response.data;
-  } catch {
-    return rejectWithValue("failed to register");
-  }
+      return { user, accessToken, refreshToken };
+    } catch (err: any) { 
+      return rejectWithValue(err.response?.data?.message || "failed to register"); 
+    }
 });
