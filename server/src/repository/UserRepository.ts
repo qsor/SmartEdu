@@ -1,37 +1,48 @@
-import * as crypto from "node:crypto";
-import { PrismaClient } from "@prisma/client";
-import { InternalUser, toMyselfUser, UserId } from "../schema/types/User.js";
-import { CreateUserResult } from "../schema/results/auth.js";
-import { EditUserResponse } from "../schema/responses/user.js";
-
-const prisma = new PrismaClient();
+import { eq, sql } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { users } from '../db/schema.js';
+import { InternalUser, toMyselfUser, UserId } from '../schema/types/User.js';
+import { CreateUserResult } from '../schema/results/auth.js';
+import { EditUserResponse } from '../schema/responses/user.js';
 
 export class UserRepository {
   async createUser(params: {
-    firstName: string
-    lastName: string | null
-    passwordHash: string
-    email: string | null
-    phoneNumber: string | null
+    firstName: string;
+    lastName: string | null;
+    passwordHash: string;
+    email: string | null;
+    phoneNumber: string | null;
   }): Promise<CreateUserResult> {
     try {
-      const user = await prisma.user.create({
-        data: {
+      const [dbUser] = await db
+        .insert(users)
+        .values({
           id: crypto.randomUUID(),
           firstName: params.firstName,
           lastName: params.lastName,
           passwordHash: params.passwordHash,
           email: params.email,
           phoneNumber: params.phoneNumber,
-        },
-      });
-      return { status: 'Success', user: user as InternalUser };
+        })
+        .returning();
+
+      const user: InternalUser = {
+        id: dbUser.id,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
+        passwordHash: dbUser.passwordHash,
+        email: dbUser.email,
+        phoneNumber: dbUser.phoneNumber,
+      };
+
+      return { status: 'Success', user };
     } catch (error: any) {
-      if (error.code === 'P2002') {
-        if (error.meta?.target?.includes('email')) {
+      // Обработка ошибки уникальности (PostgreSQL error code 23505)
+      if (error.code === '23505') {
+        if (error.constraint?.includes('email')) {
           return { status: 'Conflict', conflictOn: 'Email' };
         }
-        if (error.meta?.target?.includes('phoneNumber')) {
+        if (error.constraint?.includes('phone_number')) {
           return { status: 'Conflict', conflictOn: 'PhoneNumber' };
         }
       }
@@ -40,48 +51,112 @@ export class UserRepository {
   }
 
   async exists(id: UserId): Promise<boolean> {
-    return (await prisma.user.count({ where: { id } })) > 0;
+    const [result] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(eq(users.id, id));
+    return Number(result.count) > 0;
   }
 
   async existsByEmail(email: string): Promise<boolean> {
-    return (await prisma.user.count({ where: { email } })) > 0;
+    const [result] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(eq(users.email, email));
+    return Number(result.count) > 0;
   }
 
   async existsByPhoneNumber(phoneNumber: string): Promise<boolean> {
-    return (await prisma.user.count({ where: { phoneNumber } })) > 0;
+    const [result] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(eq(users.phoneNumber, phoneNumber));
+    return Number(result.count) > 0;
   }
 
   async getUser(id: UserId): Promise<InternalUser | null> {
-    return (await prisma.user.findUnique({ where: { id } })) as InternalUser | null;
+    const [dbUser] = await db.select().from(users).where(eq(users.id, id));
+    if (!dbUser) return null;
+
+    return {
+      id: dbUser.id,
+      firstName: dbUser.firstName,
+      lastName: dbUser.lastName,
+      passwordHash: dbUser.passwordHash,
+      email: dbUser.email,
+      phoneNumber: dbUser.phoneNumber,
+    };
   }
 
   async getUserByEmail(email: string): Promise<InternalUser | null> {
-    return (await prisma.user.findUnique({ where: { email } })) as InternalUser | null;
+    const [dbUser] = await db.select().from(users).where(eq(users.email, email));
+    if (!dbUser) return null;
+
+    return {
+      id: dbUser.id,
+      firstName: dbUser.firstName,
+      lastName: dbUser.lastName,
+      passwordHash: dbUser.passwordHash,
+      email: dbUser.email,
+      phoneNumber: dbUser.phoneNumber,
+    };
   }
 
   async getUserByPhoneNumber(phoneNumber: string): Promise<InternalUser | null> {
-    return (await prisma.user.findUnique({ where: { phoneNumber } })) as InternalUser | null;
+    const [dbUser] = await db.select().from(users).where(eq(users.phoneNumber, phoneNumber));
+    if (!dbUser) return null;
+
+    return {
+      id: dbUser.id,
+      firstName: dbUser.firstName,
+      lastName: dbUser.lastName,
+      passwordHash: dbUser.passwordHash,
+      email: dbUser.email,
+      phoneNumber: dbUser.phoneNumber,
+    };
   }
 
-  async editUser(id: UserId, fields: {
-    firstName?: string; lastName?: string | null; email?: string | null
-  }): Promise<EditUserResponse> {
+  async editUser(
+    id: UserId,
+    fields: {
+      firstName?: string;
+      lastName?: string | null;
+      email?: string | null;
+    }
+  ): Promise<EditUserResponse> {
     if (fields.email) {
-      const existingUser = await prisma.user.findFirst({
-        where: { email: fields.email, id: { not: id } },
-      });
-      if (existingUser) return { status: 'EmailAlreadyTaken' };
+      if (await this.existsByEmail(fields.email)) {
+        return { status: 'EmailAlreadyTaken' };
+      }
     }
 
     try {
-      const user = await prisma.user.update({ where: { id }, data: fields });
-      return { status: 'Success', myself: toMyselfUser(user as InternalUser) };
-    } catch (error) {
-      throw new Error('User not found');
+      const [dbUser] = await db
+        .update(users)
+        .set({ ...fields, updatedAt: new Date() })
+        .where(eq(users.id, id))
+        .returning();
+
+      if (!dbUser) {
+        throw new Error('User not found');
+      }
+
+      const user: InternalUser = {
+        id: dbUser.id,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
+        passwordHash: dbUser.passwordHash,
+        email: dbUser.email,
+        phoneNumber: dbUser.phoneNumber,
+      };
+
+      return { status: 'Success', myself: toMyselfUser(user) };
+    } catch (error: any) {
+      throw error;
     }
   }
 
   async deleteUser(id: UserId): Promise<void> {
-    await prisma.user.delete({ where: { id } });
+    await db.delete(users).where(eq(users.id, id));
   }
 }
