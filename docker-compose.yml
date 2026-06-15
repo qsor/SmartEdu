@@ -1,5 +1,5 @@
 services:
-  # PostgreSQL (без изменений)
+  # PostgreSQL
   postgres:
     image: postgres:15-alpine
     container_name: smartedu-db
@@ -47,7 +47,8 @@ services:
         condition: service_healthy
     networks:
       - smartedu-network
-    command: sh -c "npx prisma generate && npm run dev"
+    # Drizzle 
+    command: sh -c "npm run db:push && npm run dev"
 
   # Frontend
   frontend:
