@@ -1,85 +1,83 @@
-import * as crypto from "node:crypto";
-import {Temporal} from "@js-temporal/polyfill";
-import {UserId} from "../schema/types/User.js";
-import {RefreshToken, Session, SessionId, TokenPair} from "../schema/types/JWT.js";
-import {RefreshTokensResult} from "../schema/results/auth.js";
+import * as crypto from 'node:crypto';
+import { eq } from 'drizzle-orm';
+import { Temporal } from '@js-temporal/polyfill';
+import { db } from '../db/index.js';
+import { sessions } from '../db/schema.js';
+import { UserId } from '../schema/types/User.js';
+import { RefreshToken, Session, SessionId, TokenPair } from '../schema/types/JWT.js';
+import { RefreshTokensResult } from '../schema/results/auth.js';
 import Instant = Temporal.Instant;
 
 export class AuthRepository {
-    private sessions: (Session & {
-        refreshTokensSHA256: Set<string>,
-    })[] = []
+  async createSession(params: {
+    sessionId: SessionId;
+    userId: UserId;
+    currentRefreshToken: RefreshToken;
+    createdAt: Instant;
+  }): Promise<Session> {
+    const currentRefreshTokenSHA256 = crypto.hash('sha256', params.currentRefreshToken, 'hex');
 
-    async createSession(params: {
-        sessionId: SessionId
-        userId: UserId
-        currentRefreshToken: RefreshToken
-        createdAt: Instant
-    }): Promise<Session> {
-        const session: Session = {
-            id: params.sessionId,
-            userId: params.userId,
-            createdAt: params.createdAt,
-        }
+    const [dbSession] = await db
+      .insert(sessions)
+      .values({
+        id: params.sessionId,
+        userId: params.userId,
+        currentRefreshToken: currentRefreshTokenSHA256,
+        createdAt: new Date(params.createdAt.epochMilliseconds),
+      })
+      .returning();
 
-        if (this.sessions.some(it => it.id === params.sessionId))
-            throw new Error(`Duplicate session id ${params.sessionId}`)
+    return {
+      id: dbSession.id,
+      userId: dbSession.userId,
+      createdAt: Instant.fromEpochMilliseconds(dbSession.createdAt.getTime()),
+    };
+  }
 
-        const currentRefreshTokenSHA256 = crypto.hash('sha256', params.currentRefreshToken, 'hex')
-        this.sessions.push({...session, refreshTokensSHA256: new Set([currentRefreshTokenSHA256])})
+  async isRefreshTokenValidForSession(
+    sessionId: SessionId,
+    refreshToken: RefreshToken
+  ): Promise<boolean> {
+    const refreshTokenSHA256 = crypto.hash('sha256', refreshToken, 'hex');
 
-        return session
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId));
 
-        // insert ...
-        // throw new Error('Not yet implemented')
+    if (!session) return false;
+    return session.currentRefreshToken === refreshTokenSHA256;
+  }
+
+  async refreshTokens(
+    sessionId: SessionId,
+    oldRefreshToken: RefreshToken,
+    newTokenPair: TokenPair
+  ): Promise<RefreshTokensResult> {
+    const oldRefreshTokenSHA256 = crypto.hash('sha256', oldRefreshToken, 'hex');
+    const newRefreshTokenSHA256 = crypto.hash('sha256', newTokenPair.refreshToken, 'hex');
+
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId));
+
+    if (!session) {
+      return { status: 'Failed', reason: 'Expired' };
     }
 
-    async isRefreshTokenValidForSession(sessionId: SessionId, refreshToken: RefreshToken): Promise<boolean> {
-        const refreshTokenSHA256 = crypto.hash('sha256', refreshToken, 'hex')
-
-        const session = this.sessions.find(it => it.id === sessionId)
-        if (!session)
-            return false
-
-        return session.refreshTokensSHA256.has(refreshTokenSHA256)
-
-        // (select ...) === refreshTokenSHA256
-        // throw new Error('Not yet implemented')
+    // Проверка на компрометацию токена
+    if (session.currentRefreshToken !== oldRefreshTokenSHA256) {
+      return { status: 'CompromisedSession' };
     }
 
-    async refreshTokens(sessionId: SessionId, oldRefreshToken: RefreshToken, newTokenPair: TokenPair): Promise<RefreshTokensResult> {
-        const oldRefreshTokenSHA256 = crypto.hash('sha256', oldRefreshToken, 'hex')
-        const newRefreshTokenSHA256 = crypto.hash('sha256', newTokenPair.refreshToken, 'hex')
+    await db
+      .update(sessions)
+      .set({ currentRefreshToken: newRefreshTokenSHA256 })
+      .where(eq(sessions.id, sessionId));
 
-        const session = this.sessions.find(it => it.id === sessionId)
-        if (!session)
-            return {status: 'Failed', reason: 'Expired'}
+    return { status: 'Success', newTokenPair };
+  }
 
-        // todo реализовать в sql
-        // const hasOld = session.refreshTokensSHA256.has(oldRefreshTokenSHA256)
-        // if (!hasOld)
-        //     return {status: 'CompromisedRefreshToken'}
+  async revokeSession(sessionId: SessionId): Promise<void> {
+    await db.delete(sessions).where(eq(sessions.id, sessionId));
+  }
 
-        session.refreshTokensSHA256.delete(oldRefreshTokenSHA256)
-        session.refreshTokensSHA256.add(newRefreshTokenSHA256)
-        return {status: 'Success', newTokenPair}
-
-        // update set current_refresh_token = currentRefreshTokenSHA256 where ...
-        // throw new Error('Not yet implemented')
-    }
-
-    async revokeSession(sessionId: SessionId): Promise<void> {
-        const index = this.sessions.findIndex(it => it.id === sessionId)
-        if (index === -1)
-            return
-        this.sessions.splice(index, 1)
-
-        // delete ... where id = ...
-        // throw new Error('Not yet implemented')
-    }
-
-    async revokeAllSessionsForUser(userId: UserId) {
-        // delete ... where user_id = ...
-        throw new Error('Not yet implemented')
-    }
+  async revokeAllSessionsForUser(userId: UserId): Promise<void> {
+    await db.delete(sessions).where(eq(sessions.userId, userId));
+  }
 }

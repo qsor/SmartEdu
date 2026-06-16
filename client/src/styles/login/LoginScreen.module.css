@@ -1,4 +1,3 @@
-
 .loginSection {
   @apply w-full max-w-[302px] rounded-lg bg-white px-9 py-8 shadow-[0_8px_24px_rgba(0,0,0,0.16)];
 }
@@ -47,7 +46,7 @@
 }
 
 .submitButton {
-  @apply w-full h-9 rounded-sm bg-orange-500 text-sm font-medium text-white;
+  @apply w-full h-9 rounded-full bg-orange-500 text-sm font-medium text-white;
   @apply hover:bg-orange-600 transition-colors;
 }
 

@@ -1,9 +1,8 @@
-import { Sidebar } from '../components/Sidebar';
-import { Header } from '../components/Header';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CatalogCourseCard from '../components/CatalogCourseCard';
 
-// Мок
-const courses = [
+const mockCourses = [
   {
     id: 1,
     title: 'Основы React',
@@ -48,41 +47,40 @@ const courses = [
   },
 ];
 
+interface Course {
+  id: number;
+  title: string;
+  description: string;
+  rating: number;
+  price: number;
+}
+
 export default function CatalogPage() {
-  const handleCardClick = (courseTitle: string) => {
-    console.log(`Клик по курсу: ${courseTitle}`);
-    //  тута будет переход на страницу курса ( когда сделаете )
+  const [courses, setCourses] = useState<Course[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setCourses(mockCourses);
+  }, []);
+
+  const handleCardClick = (courseId: number) => {
+    navigate(`/course/${courseId}`);
   };
 
   return (
-    <>
-      {/* Боковая панель */}
-      <Sidebar />
-
-      {/* Шапка */}
-      <Header />
-
-      {/* Основной контент */}
-      <main className="ml-[230px] mt-[56px] min-h-screen bg-[#f5f5f5] p-8">
-        <div className="mx-auto max-w-7xl">
-          <h1 className="mb-8 text-3xl font-bold text-gray-900">Все курсы</h1>
-
-          {/* Адаптивная сетка карточек */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course) => (
-              <CatalogCourseCard
-                key={course.id}
-                title={course.title}
-                description={course.description}
-                rating={course.rating}
-                price={course.price}
-                imagePlaceholder={true}
-                onCardClick={() => handleCardClick(course.title)}
-              />
-            ))}
-          </div>
-        </div>
-      </main>
-    </>
+    // pt-10 опускает весь контент ниже верхнего меню (Header)
+    <div className="w-full pt-10">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Каталог курсов</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 w-full">
+        {courses.map((course) => (
+          <CatalogCourseCard
+            key={course.id}
+            {...course}
+            onCardClick={() => handleCardClick(course.id)}
+          />
+        ))}
+      </div>
+    </div>
   );
 }

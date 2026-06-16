@@ -8,6 +8,18 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'], // TS/TSX
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },
+  // БЛОК ДЛЯ ПРОКСИРОВАНИЯ API
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://backend:3002', 
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  }
 });
