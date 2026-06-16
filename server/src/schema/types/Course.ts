@@ -1,17 +1,6 @@
+import {Lesson} from "./Lesson.js";
+
 export type CourseId = string;
-
-export type InternalCourse = {
-    id: CourseId;
-    title: string;
-    shortDescription: string;
-    tags: string[];
-    lessonsCount: number;
-    rating: number;
-};
-
-export function toCourse(internalCourse: InternalCourse): Course {
-    return internalCourse satisfies Course
-}
 
 /**
  * Содержит общую информации о курсе
@@ -60,7 +49,7 @@ export interface CourseDetails {
     /**
      * Длинное описание курса на странице курса
      */
-    long_description: string
+    longDescription: string
 
     reviews: CourseReview[]
 
@@ -93,37 +82,3 @@ export interface CourseReview {
      */
     rating: number
 }
-
-/**
- * Содержит общую информацию об уроке
- */
-export interface Lesson {
-    id: string
-
-    /**
-     * Заголовок урока
-     */
-    title: string
-
-    /**
-     * Короткое описание урока (Что в нём будет, кратко)
-     */
-    short_description: string
-
-    /**
-     * Сколько XP получит пользователь, если пройдёт этот урок
-     */
-    xp: number
-
-    /**
-     * Прогресс текущего пользователя в этом уроке
-     */
-    myProgress: MyLessonProgress
-}
-
-/**
- * NotCompleted - Текущий пользователь не начал прохождение этого урока
- * InProgress - Текущий пользователь частично прошёл урок
- * Completed - Текущий пользователь полностью прошёл этот урок
- */
-export type MyLessonProgress = 'NotCompleted' | 'InProgress' | 'Completed'

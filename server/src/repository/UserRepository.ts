@@ -76,6 +76,16 @@ export class UserRepository {
         // throw new Error('Not yet implemented')
     }
 
+    /**
+     * // ничего не изменится
+     * editUser(id, {})
+     *
+     * // изменится только имя
+     * editUser(id, { firstName: 'qwerty' })
+     *
+     * // изменится имя и фамилия
+     * editUser(id, { firstName: 'qwerty', lastName: null })
+     */
     async editUser(id: UserId, fields: {
         firstName?: string
         lastName?: string | null
@@ -92,6 +102,7 @@ export class UserRepository {
             throw new Error('User not found')
 
         const [user] = this.users.splice(index, 1)
+        // В newUser изменяются только те свойства, которые есть в fields
         const newUser: InternalUser = {...user, ...fields}
         this.users.push(newUser)
 
