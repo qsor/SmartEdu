@@ -1,4 +1,5 @@
-import { InternalCourse, CourseId } from "../schema/types/Course.js";
+import {CourseId} from "../schema/types/Course.js";
+import {InternalCourse} from "../schema/types/InternalCourse.js";
 
 export class CourseRepository {
     private courses: InternalCourse[] = [
