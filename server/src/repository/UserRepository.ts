@@ -22,7 +22,7 @@ export class UserRepository {
             firstName: params.firstName,
             lastName: params.lastName,
             passwordHash: params.passwordHash,
-            email: params.email,
+            email: params.email?.toLowerCase() ?? null,
             phoneNumber: params.phoneNumber,
         }
 
@@ -42,6 +42,7 @@ export class UserRepository {
     }
 
     async existsByEmail(email: string): Promise<boolean> {
+        email = email.toLowerCase()
         return this.users.some(it => it.email === email)
 
         // SELECT 1 FROM users WHERE email = ?
@@ -63,6 +64,7 @@ export class UserRepository {
     }
 
     async getUserByEmail(email: string): Promise<InternalUser | null> {
+        email = email.toLowerCase()
         return this.users.find(it => it.email === email) ?? null
 
         // SELECT FROM users WHERE email = ?
@@ -82,6 +84,7 @@ export class UserRepository {
         email?: string | null
     }): Promise<EditUserResponse> {
         if (fields.email) {
+            fields.email = fields.email.toLowerCase()
             if (await this.existsByEmail(fields.email)) {
                 return {status: 'EmailAlreadyTaken'}
             }
