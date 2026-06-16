@@ -1,5 +1,6 @@
 import {Course, CourseDetails, CourseId, CourseReview} from "./Course.js";
-import {InternalLesson} from "./InternalLesson.js";
+import {InternalLesson, toLesson} from "./InternalLesson.js";
+import {LessonId, MyLessonProgress} from "./Lesson.js";
 
 export type InternalCourse = {
     id: CourseId;
@@ -22,7 +23,14 @@ export function toCourse(internal: InternalCourse): Course {
 }
 
 export function toCourseDetails(internal: InternalCourseDetails, options: {
-    canReview: boolean
+    canReview: boolean,
+    myLessonProgresses: Map<LessonId, MyLessonProgress>
 }): CourseDetails {
-    return {...internal, canReview: options.canReview} satisfies CourseDetails
+    const lessons = internal.lessons.map(internalLesson =>
+        toLesson(internalLesson, {
+            myProgress: options.myLessonProgresses.get(internalLesson.id) ?? 'NotCompleted'
+        })
+    )
+
+    return {...internal, lessons: lessons, canReview: options.canReview} satisfies CourseDetails
 }
