@@ -8,7 +8,11 @@ import CourseDetails from "@/pages/CourseDetails";
 import ProgressPage from "@/pages/ProgressPage";
 import PublicLayout from "@/components/layouts/PublicLayout";
 import MainLayout from "@/components/layouts/MainLayout";
+<<<<<<< Updated upstream
 import ProtectedRoute from "@/components/router/ProtectedRoute";
+=======
+import SettingsPage from "./pages/SettingsPage";
+>>>>>>> Stashed changes
 
 export const router = createBrowserRouter([
   {
@@ -55,6 +59,10 @@ export const router = createBrowserRouter([
                 element: <CourseDetails />,
               },
             ],
+          },
+          {
+            path: "settings",
+            element: <SettingsPage />,
           },
         ],
       },
