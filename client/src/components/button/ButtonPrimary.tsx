@@ -2,7 +2,8 @@ import React, { ButtonHTMLAttributes, ReactNode } from 'react';
 import styles from '../../styles/Button.module.css';
 
 interface ButtonPrimaryProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  title: string;
+  title?: string;
+  children?: ReactNode;
   icon?: ReactNode; 
 }
 

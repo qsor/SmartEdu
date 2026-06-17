@@ -1,0 +1,38 @@
+.list {
+  @apply space-y-6;
+}
+
+.title {
+  @apply text-xl font-semibold text-gray-800 mb-4;
+}
+
+.items {
+  @apply space-y-4;
+}
+
+.card {
+  @apply bg-white border border-gray-200 rounded-xl p-4 shadow-sm;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.card:hover {
+  @apply shadow-lg;
+  transform: translateY(-2px);
+}
+
+.question {
+  @apply font-medium text-gray-900 text-base flex justify-between items-center;
+}
+
+.answer {
+  @apply text-gray-600 text-sm leading-relaxed;
+}
+
+.arrow {
+  @apply text-orange-500 text-lg font-bold transition-transform duration-300;
+}
+
+.arrowOpen {
+  transform: rotate(180deg);
+}

@@ -12,7 +12,7 @@ import Catalog from "@/pages/Catalog";
 import ProgressPage from "@/pages/ProgressPage";
 import CertificatesPage from "@/pages/CertificatesPage";
 import CourseDetails from "@/pages/CourseDetails";
-
+import HelpPage from "@/pages/HelpPage";
 // Layouts
 import MainLayout from "@/components/layouts/MainLayout";
 
@@ -66,7 +66,10 @@ export const router = createBrowserRouter([
           },
         ],
       },
-
+       {
+      path: "help",
+      element: <HelpPage />,
+       },
       {
         path: "*",
         element: <Navigate to="/dashboard" replace />,
