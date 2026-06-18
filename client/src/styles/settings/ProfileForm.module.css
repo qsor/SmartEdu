@@ -1,0 +1,19 @@
+.form {
+    @apply flex flex-col gap-5 bg-white;
+}
+
+.fieldGroup {
+    @apply flex flex-col gap-1.5;
+}
+
+.label {
+    @apply text-sm font-medium text-gray-950;
+}
+
+.errorText {
+    @apply text-xs font-medium text-red-500;
+}
+
+.submitWrapper {
+    @apply mt-2;
+}
