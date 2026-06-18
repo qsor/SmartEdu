@@ -12,6 +12,7 @@ import Catalog from "@/pages/Catalog";
 import ProgressPage from "@/pages/ProgressPage";
 import CertificatesPage from "@/pages/CertificatesPage";
 import CourseDetails from "@/pages/CourseDetails";
+import CoursePassPage from "@/pages/CoursePassPage";
 import SettingsPage from "@/pages/SettingsPage";
 import HelpPage from "@/pages/HelpPage";
 
@@ -65,6 +66,10 @@ export const router = createBrowserRouter([
           {
             path: "course/:id",
             element: <CourseDetails />,
+          },
+          {
+            path: "course/:id/lesson/:lessonId",
+            element: <CoursePassPage />,
           },
           {
             path: "settings",
