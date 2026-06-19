@@ -1,14 +1,18 @@
 import * as crypto from "node:crypto";
 import {Temporal} from "@js-temporal/polyfill";
+import {eq} from "drizzle-orm";
+import type {NodePgDatabase} from "drizzle-orm/node-postgres";
+import {sessions} from "../db/schema.js";
+import type * as schema from "../db/schema.js";
 import {UserId} from "../schema/types/User.js";
 import {RefreshToken, Session, SessionId, TokenPair} from "../schema/types/JWT.js";
 import {RefreshTokensResult} from "../schema/results/auth.js";
 import Instant = Temporal.Instant;
 
 export class AuthRepository {
-    private sessions: (Session & {
-        refreshTokensSHA256: Set<string>,
-    })[] = []
+    constructor(
+        private readonly db: NodePgDatabase,
+    ) {}
 
     async createSession(params: {
         sessionId: SessionId
@@ -22,64 +26,72 @@ export class AuthRepository {
             createdAt: params.createdAt,
         }
 
-        if (this.sessions.some(it => it.id === params.sessionId))
+        const [existingSession] = await this.db
+            .select({id: sessions.id})
+            .from(sessions)
+            .where(eq(sessions.id, params.sessionId))
+            .limit(1)
+
+        if (existingSession)
             throw new Error(`Duplicate session id ${params.sessionId}`)
 
         const currentRefreshTokenSHA256 = crypto.hash('sha256', params.currentRefreshToken, 'hex')
-        this.sessions.push({...session, refreshTokensSHA256: new Set([currentRefreshTokenSHA256])})
+        await this.db.insert(sessions).values({
+            id: params.sessionId,
+            user_id: params.userId,
+            current_refresh_token: currentRefreshTokenSHA256,
+            created_at: new Date(params.createdAt.epochMilliseconds),
+        })
 
         return session
-
-        // insert ...
-        // throw new Error('Not yet implemented')
     }
 
     async isRefreshTokenValidForSession(sessionId: SessionId, refreshToken: RefreshToken): Promise<boolean> {
         const refreshTokenSHA256 = crypto.hash('sha256', refreshToken, 'hex')
 
-        const session = this.sessions.find(it => it.id === sessionId)
+        const [session] = await this.db
+            .select({currentRefreshToken: sessions.current_refresh_token})
+            .from(sessions)
+            .where(eq(sessions.id, sessionId))
+            .limit(1)
+
         if (!session)
             return false
 
-        return session.refreshTokensSHA256.has(refreshTokenSHA256)
-
-        // (select ...) === refreshTokenSHA256
-        // throw new Error('Not yet implemented')
+        return session.currentRefreshToken === refreshTokenSHA256
     }
 
     async refreshTokens(sessionId: SessionId, oldRefreshToken: RefreshToken, newTokenPair: TokenPair): Promise<RefreshTokensResult> {
         const oldRefreshTokenSHA256 = crypto.hash('sha256', oldRefreshToken, 'hex')
         const newRefreshTokenSHA256 = crypto.hash('sha256', newTokenPair.refreshToken, 'hex')
 
-        const session = this.sessions.find(it => it.id === sessionId)
+        const [session] = await this.db
+            .select({id: sessions.id})
+            .from(sessions)
+            .where(eq(sessions.id, sessionId))
+            .limit(1)
+
         if (!session)
             return {status: 'Failed', reason: 'Expired'}
 
         // todo реализовать в sql
-        // const hasOld = session.refreshTokensSHA256.has(oldRefreshTokenSHA256)
+        // const hasOld = session.currentRefreshToken === oldRefreshTokenSHA256
         // if (!hasOld)
         //     return {status: 'CompromisedRefreshToken'}
 
-        session.refreshTokensSHA256.delete(oldRefreshTokenSHA256)
-        session.refreshTokensSHA256.add(newRefreshTokenSHA256)
-        return {status: 'Success', newTokenPair}
+        await this.db
+            .update(sessions)
+            .set({current_refresh_token: newRefreshTokenSHA256})
+            .where(eq(sessions.id, sessionId))
 
-        // update set current_refresh_token = currentRefreshTokenSHA256 where ...
-        // throw new Error('Not yet implemented')
+        return {status: 'Success', newTokenPair}
     }
 
     async revokeSession(sessionId: SessionId): Promise<void> {
-        const index = this.sessions.findIndex(it => it.id === sessionId)
-        if (index === -1)
-            return
-        this.sessions.splice(index, 1)
-
-        // delete ... where id = ...
-        // throw new Error('Not yet implemented')
+        await this.db.delete(sessions).where(eq(sessions.id, sessionId))
     }
 
-    async revokeAllSessionsForUser(userId: UserId) {
-        // delete ... where user_id = ...
-        throw new Error('Not yet implemented')
+    async revokeAllSessionsForUser(userId: UserId): Promise<void> {
+        await this.db.delete(sessions).where(eq(sessions.user_id, userId))
     }
 }

@@ -1,9 +1,16 @@
+import * as crypto from "node:crypto";
+import {eq} from "drizzle-orm";
+import type {NodePgDatabase} from "drizzle-orm/node-postgres";
+import {UserRow, users} from "../db/schema.js";
+import type * as schema from "../db/schema.js";
 import {InternalUser, toMyselfUser, UserId} from "../schema/types/User.js";
 import {CreateUserResult} from "../schema/results/auth.js";
 import {EditUserResponse} from "../schema/responses/user.js";
 
 export class UserRepository {
-    private users: InternalUser[] = []
+    constructor(
+        private readonly db: NodePgDatabase,
+    ) {}
 
     async createUser(params: {
         firstName: string
@@ -26,56 +33,78 @@ export class UserRepository {
             phoneNumber: params.phoneNumber,
         }
 
-        this.users.push(user)
+        await this.db.insert(users).values({
+            id: user.id,
+            first_name: user.firstName,
+            last_name: user.lastName,
+            password_hash: user.passwordHash,
+            email: user.email,
+            phone_number: user.phoneNumber,
+        })
 
         return {status: 'Success', user: user}
-
-        // INSERT INTO users (first_name, last_name, password_hash, email) values (?, ?, ?, ?) RETURNING *
-        // throw new Error('Not yet implemented')
     }
 
     async exists(id: UserId): Promise<boolean> {
-        return this.users.some(it => it.id === id)
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.id, id))
+            .limit(1)
 
-        // SELECT 1 FROM users WHERE id = ?
-        // throw new Error('Not yet implemented')
+        return user !== undefined
     }
 
     async existsByEmail(email: string): Promise<boolean> {
         email = email.toLowerCase()
-        return this.users.some(it => it.email === email)
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.email, email))
+            .limit(1)
 
-        // SELECT 1 FROM users WHERE email = ?
-        // throw new Error('Not yet implemented')
+        return user !== undefined
     }
 
     async existsByPhoneNumber(phoneNumber: string): Promise<boolean> {
-        return this.users.some(it => it.phoneNumber === phoneNumber)
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.phone_number, phoneNumber))
+            .limit(1)
 
-        // SELECT 1 FROM users WHERE phone_number = ?
-        // throw new Error('Not yet implemented')
+        return user !== undefined
     }
 
     async getUser(id: UserId): Promise<InternalUser | null> {
-        return this.users.find(it => it.id === id) ?? null
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.id, id))
+            .limit(1)
 
-        // SELECT FROM users WHERE id = ?
-        // throw new Error('Not yet implemented')
+        return user ? toInternalUser(user) : null
     }
 
     async getUserByEmail(email: string): Promise<InternalUser | null> {
         email = email.toLowerCase()
-        return this.users.find(it => it.email === email) ?? null
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.email, email))
+            .limit(1)
 
-        // SELECT FROM users WHERE email = ?
-        // throw new Error('Not yet implemented')
+        return user ? toInternalUser(user) : null
     }
 
     async getUserByPhoneNumber(phoneNumber: string): Promise<InternalUser | null> {
-        return this.users.find(it => it.phoneNumber === phoneNumber) ?? null
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.phone_number, phoneNumber))
+            .limit(1)
 
-        // SELECT FROM users WHERE phone_number = ?
-        // throw new Error('Not yet implemented')
+        return user ? toInternalUser(user) : null
     }
 
     async editUser(id: UserId, fields: {
@@ -90,22 +119,46 @@ export class UserRepository {
             }
         }
 
-        const index = this.users.findIndex(it => it.id === id)
-        if (index === -1)
+        const updateFields: {
+            first_name?: string
+            last_name?: string | null
+            email?: string | null
+            updated_at: Date
+        } = {
+            updated_at: new Date(),
+        }
+
+        if (fields.firstName !== undefined)
+            updateFields.first_name = fields.firstName
+        if (fields.lastName !== undefined)
+            updateFields.last_name = fields.lastName
+        if (fields.email !== undefined)
+            updateFields.email = fields.email
+
+        const [newUser] = await this.db
+            .update(users)
+            .set(updateFields)
+            .where(eq(users.id, id))
+            .returning()
+
+        if (!newUser)
             throw new Error('User not found')
 
-        const [user] = this.users.splice(index, 1)
-        const newUser: InternalUser = {...user, ...fields}
-        this.users.push(newUser)
-
-        return {status: 'Success', myself: toMyselfUser(newUser)}
-
-        // UPDATE users SET ... = ... WHERE id = ?
-        // throw new Error('Not yet implemented')
+        return {status: 'Success', myself: toMyselfUser(toInternalUser(newUser))}
     }
 
     async deleteUser(id: UserId): Promise<void> {
-        // DELETE FROM users WHERE id = ?
-        throw new Error('Not yet implemented')
+        await this.db.delete(users).where(eq(users.id, id))
+    }
+}
+
+function toInternalUser(row: UserRow): InternalUser {
+    return {
+        id: row.id,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        passwordHash: row.password_hash,
+        email: row.email,
+        phoneNumber: row.phone_number,
     }
 }
