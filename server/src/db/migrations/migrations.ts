@@ -1,9 +1,11 @@
-import {migration_v1} from "./migration_v1.js";
 import {Migration} from "../createMigration.js";
+import {migration_v1} from "./migration_v1.js";
+import {migration_v2} from "./migration_v2.js";
 
 // Сюда должны быть добавлены все миграции, от 1 до последней в порядке возрастания.
 export const migrations: Migration[] = [
     migration_v1,
+    migration_v2,
 ]
 
 // ------ Проверка, что массив migrations составлен правильно ------
