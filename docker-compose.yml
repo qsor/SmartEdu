@@ -48,7 +48,7 @@ services:
     networks:
       - smartedu-network
     # Drizzle 
-    command: sh -c "npm run db:push && npm run dev"
+    command: sh -c "npm run dev"
 
   # Frontend
   frontend:
