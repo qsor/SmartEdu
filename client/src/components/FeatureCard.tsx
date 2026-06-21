@@ -6,6 +6,7 @@ interface FeatureCardProps {
   description: string;
   icon?: string;
   isHighlighted: boolean;
+  onClick?: () => void;
 }
 
 export const FeatureCard: React.FC<FeatureCardProps> =  
@@ -13,12 +14,14 @@ export const FeatureCard: React.FC<FeatureCardProps> =
   title,
   description,
   icon,
-  isHighlighted = false
+  isHighlighted = false,
+  onClick 
 }) => {
   return (
     <div
-      className={ `${styles.FeatureCardWrapper}
-      ${isHighlighted ?  styles.highlighted : undefined
+      onClick={onClick}
+      className={ `${styles.FeatureCardWrapper} cursor-pointer ${
+        isHighlighted ? styles.highlighted : undefined
       }`}
     >
       <div>
@@ -30,7 +33,7 @@ export const FeatureCard: React.FC<FeatureCardProps> =
           {description}
         </p>
       </div>
-    <img className={styles.FCarrow} src={arrowIcon} alt="arrow" />
+      <img className={styles.FCarrow} src={arrowIcon} alt="arrow" />
     </div>
   );
 };
