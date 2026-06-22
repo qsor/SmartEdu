@@ -27,4 +27,8 @@ export class CourseService {
             myLessonProgresses: new Map(),
         })
     }
+
+    async search(searchQuery: string): Promise<InternalCourse[]> {
+        return this.courseRepository.search(searchQuery)
+    }
 }

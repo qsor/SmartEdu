@@ -2,16 +2,16 @@ import { Temporal } from "@js-temporal/polyfill";
 
 type Duration = Temporal.Duration;
 
-const port = Number(process.env.PORT ?? 4000);
-const clientOrigin = process.env.CLIENT_ORIGIN;
-const databaseUrl = process.env.DATABASE_URL;
-const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-const accessTokenLifetimeRaw = process.env.ACCESS_TOKEN_LIFETIME;
-const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
-const refreshTokenLifetimeRaw = process.env.REFRESH_TOKEN_LIFETIME;
-const refreshTokenCookieLifetimeRaw = process.env.REFRESH_TOKEN_COOKIE_LIFETIME ?? refreshTokenLifetimeRaw;
-const cookieSecret = process.env.COOKIE_SECRET;
-const secureCookieRaw = process.env.SECURE_COOKIE;
+const port = Number(process.env.PORT?.trim() ?? 4000);
+const clientOrigin = process.env.CLIENT_ORIGIN?.trim();
+const databaseUrl = process.env.DATABASE_URL?.trim();
+const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET?.trim();
+const accessTokenLifetimeRaw = process.env.ACCESS_TOKEN_LIFETIME?.trim();
+const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET?.trim();
+const refreshTokenLifetimeRaw = process.env.REFRESH_TOKEN_LIFETIME?.trim();
+const refreshTokenCookieLifetimeRaw = (process.env.REFRESH_TOKEN_COOKIE_LIFETIME ?? refreshTokenLifetimeRaw)?.trim();
+const cookieSecret = process.env.COOKIE_SECRET?.trim();
+const secureCookieRaw = process.env.SECURE_COOKIE?.trim();
 
 if (Number.isNaN(port)) {
     throw new Error("PORT environment variable must be a valid number");

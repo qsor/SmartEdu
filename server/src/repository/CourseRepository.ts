@@ -1,4 +1,4 @@
-import {eq} from "drizzle-orm";
+import {desc, eq, sql} from "drizzle-orm";
 import type {NodePgDatabase} from "drizzle-orm/node-postgres";
 import {CourseRow, courses} from "../db/schema.js";
 import type * as schema from "../db/schema.js";
@@ -42,6 +42,34 @@ export class CourseRepository {
                 parts: 1,
             })),
         }
+    }
+
+    async search(searchQuery: string): Promise<InternalCourse[]> {
+        // Совпадения меньше этого значения отсекаются (Можно изменять, подбирать наилучшее значение)
+        const relevantThreshold = 0.2
+
+        // Текстовый поиск. Результат отсортирован по наилучшему совпадению.
+        // Приоритет по совпаданию такой: сначала лучшее совпадение по title, затем по tags, затем по short_description.
+        const searchScore = sql<number>`
+            (word_similarity(${searchQuery}, ${courses.title}) * 3) +
+            (word_similarity(${searchQuery}, array_to_string(${courses.tags}, ' ')) * 2) +
+            (word_similarity(${searchQuery}, ${courses.short_description}) * 1)
+        `
+
+        const results = await this.db
+            .select({
+                id: courses.id,
+                title: courses.title,
+                tags: courses.tags,
+                short_description: courses.short_description,
+                rating: courses.rating,
+                score: searchScore,
+            })
+            .from(courses)
+            .where(sql`${searchScore} >= ${relevantThreshold}`)
+            .orderBy(desc(searchScore))
+
+        return results.map(row => toInternalCourse(row))
     }
 }
 

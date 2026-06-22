@@ -62,7 +62,7 @@ services:
       - ./client:/app
       - client_node_modules:/app/node_modules
     environment:
-      - VITE_API_URL=http://localhost:3002/api
+      - VITE_API_URL=http://backend:3002/api
     depends_on:
       - backend
     networks:
