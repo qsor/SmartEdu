@@ -1,6 +1,7 @@
 import React from 'react';
 import StarRatingAdvanced from './StarRatingAdvanced';
 import styles from '../styles/catalog/CatalogCourseCard.module.css';
+
 interface CatalogCourseCardProps {
   title?: string;
   description?: string;
@@ -23,26 +24,21 @@ const CatalogCourseCard: React.FC<CatalogCourseCardProps> = ({
       onClick={onCardClick}
       className={styles.card}
     >
-      {/* Заглушка под картинку (верхняя часть) */}
       <div className={styles.imageContainer}>
         {imagePlaceholder && (
           <span className={styles.imagePlaceholderText}>Обложка курса</span>
         )}
       </div>
 
-      {/* Контентная часть */}
       <div className={styles.contentContainer}>
-        {/* Заголовок */}
         <h3 className={styles.title}>
           {title}
         </h3>
 
-        {/* Описание с line-clamp (2 строчки) */}
         <p className={styles.description}>
           {description}
         </p>
 
-        {/* Рейтинг с половинчатыми звездами */}
         <div className={styles.ratingContainer}>
           <StarRatingAdvanced 
             rating={rating} 
@@ -51,11 +47,16 @@ const CatalogCourseCard: React.FC<CatalogCourseCardProps> = ({
           />
         </div>
 
-        {/* Блок цены в правом нижнем углу */}
         <div className={styles.priceContainer}>
-          <span className={styles.price}>
-            {price.toLocaleString()} ₽
-          </span>
+          {price === 0 ? (
+            <span className={`${styles.price} text-green-500`}>
+              Бесплатно
+            </span>
+          ) : (
+            <span className={styles.price}>
+              {price?.toLocaleString()} ₽
+            </span>
+          )}
         </div>
       </div>
     </div>

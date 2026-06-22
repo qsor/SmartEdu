@@ -2,8 +2,14 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import {
   clearAuth, getAccessToken, getRefreshToken, setTokens,
 } from "./tokenStorage";
+import instance from './instance';
 
 type RetryRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean; };
+
+export const enrollCourse = async (courseId: string) => {
+  const response = await instance.post(`/courses/${courseId}/enroll`);
+  return response.data;
+};
 
 export const api = axios.create({
   baseURL: "/api",

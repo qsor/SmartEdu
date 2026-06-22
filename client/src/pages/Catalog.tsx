@@ -4,6 +4,13 @@ import CatalogCourseCard from '../components/CatalogCourseCard';
 
 const mockCourses = [
   {
+    id: 0,
+    title: 'Тестовый бесплатный курс',
+    description: 'Этот курс нужен нам, чтобы протестировать добавление в Мои курсы без оплаты.',
+    rating: 5.0,
+    price: 0,
+  },
+  {
     id: 1,
     title: 'Основы React',
     description: 'Полный курс по React для начинающих. Изучите хуки, контекст и маршрутизацию.',
@@ -48,7 +55,7 @@ const mockCourses = [
 ];
 
 interface Course {
-  id: number;
+  id: number | string;
   title: string;
   description: string;
   rating: number;
@@ -63,20 +70,21 @@ export default function CatalogPage() {
     setCourses(mockCourses);
   }, []);
 
-  const handleCardClick = (courseId: number) => {
+  const handleCardClick = (courseId: number | string) => {
     navigate(`/course/${courseId}`);
   };
 
   return (
-    // pt-10 опускает весь контент ниже верхнего меню (Header)
     <div className="w-full pt-10">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Каталог курсов</h1>
-      
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 w-full">
         {courses.map((course) => (
           <CatalogCourseCard
             key={course.id}
-            {...course}
+            title={course.title}
+            description={course.description}
+            rating={course.rating}
+            price={course.price}
             onCardClick={() => handleCardClick(course.id)}
           />
         ))}
