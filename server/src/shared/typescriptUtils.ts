@@ -44,7 +44,7 @@ export function assertNever(value: never): never {
     throw new Error(`Expected unreachable code, but received unexpected value: ${value}`)
 }
 
-export function assertType<T = never>(value: NoInfer<T>) {}
+export function assertType<T = never>(value: NoInfer<T>): T { return value }
 
 export type Mutable<T> = {
     -readonly [K in keyof T]: T[K]

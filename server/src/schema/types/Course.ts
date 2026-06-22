@@ -1,10 +1,84 @@
+import {Lesson} from "./Lesson.js";
+
 export type CourseId = string;
 
-export type InternalCourse = {
-    id: CourseId;
-    title: string;
-    shortDescription: string;
-    tags: string[];
-    lessonsCount: number;
-    rating: number;
-};
+/**
+ * Содержит общую информации о курсе
+ */
+export interface Course {
+    id: CourseId
+
+    /**
+     * Название курса
+     */
+    title: string
+
+    /**
+     * Короткое описние курса (для карточки)
+     */
+    shortDescription: string
+
+    /**
+     * Теги курса
+     */
+    tags: string[]
+
+    /**
+     * Общее колличество уроков в этом курсе
+     */
+    lessonsCount: number
+
+    /**
+     * Плавающее число от 0 до 1.
+     * (На клиенте можно отображать 5 звезд: добавлять одну звёздочку за каждые 0.2 рейтинга)
+     */
+    rating: number
+}
+
+/**
+ * Содержит полную информацию о курсе (для страницы курса)
+ */
+export interface CourseDetails {
+    courseId: CourseId
+
+    /**
+     * Полный список уроков в этом курсе
+     */
+    lessons: Lesson[]
+
+    /**
+     * Длинное описание курса на странице курса
+     */
+    longDescription: string
+
+    reviews: CourseReview[]
+
+    /**
+     * Может ли текущий пользователь оставить отзыв на этот курс?
+     * Обычно true только для тех, кто прошёл курс.
+     * Но также, например, может быть true для админов, даже если они не прошли курс.
+     * (Если true, то на странице курса нужно отобразить возможность оставить отзыв)
+     */
+    canReview: boolean
+}
+
+/**
+ * Отзыв на курс (Отображается на странице курса)
+ */
+export interface CourseReview {
+    /**
+     * Кто оставил отзыв? Например: Иван Иванов
+     */
+    authorName: string
+
+    /**
+     * Текст отзыва
+     */
+    text: string
+
+    /**
+     * Плавающее число от 0 до 1.
+     * (На клиенте можно отображать 5 звезд: добавлять одну звёздочку за каждые 0.2 рейтинга)
+     */
+    rating: number
+}

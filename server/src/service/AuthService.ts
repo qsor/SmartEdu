@@ -39,8 +39,8 @@ export class AuthService {
         config: {
             accessJwtService: JwtService,
             refreshJwtService: JwtService,
-            accessTokenLifetime: DurationLike,
-            refreshTokenLifetime: DurationLike,
+            accessTokenLifetime: DurationLike, // например: {minutes: 5}
+            refreshTokenLifetime: DurationLike, // например: {days: 28}
         }
     ) {
         this.accessJwtService = config.accessJwtService
@@ -55,14 +55,12 @@ export class AuthService {
         email: string
         password: string
     }): Promise<RegisterResult> {
-        email = email.trim().toLowerCase();
-        firstName = firstName.trim();
-        if (lastName) {
-            lastName = lastName.trim();
-        }
+        // Проверка валидности Email
 
         if (!emailRegex.test(email))
             return {status: 'InvalidEmail'}
+
+        // Создание пользователя
 
         const createUserResult = await this.userRepository.createUser({
             firstName: firstName,
@@ -95,8 +93,6 @@ export class AuthService {
     }
 
     async loginUsingEmail(email: string, password: string): Promise<LoginResult> {
-        email = email.trim().toLowerCase();
-
         const user = await this.userRepository.getUserByEmail(email)
         if (user === null) {
             return {status: 'EmailNotRegistered'}
@@ -126,6 +122,9 @@ export class AuthService {
         if (verifyResult.status === 'Success') {
             const payload = this.decodeAccessTokenPayload(verifyResult.payload)
             if (payload === null) {
+                // Подпись верная, значит токен подписал именно сервер.
+                // Скорее всего код сервера обновился, и он больше не принимает такой payload, а клиент использовал старый токен.
+                // Поэтому считаем такой токен истёкшим.
                 return {status: 'Failed', reason: 'Expired'}
             }
 
@@ -145,6 +144,9 @@ export class AuthService {
         if (verifyResult.status === 'Success') {
             const payload = this.decodeRefreshTokenPayload(verifyResult.payload)
             if (payload === null) {
+                // Подпись верная, значит токен подписал именно сервер.
+                // Скорее всего код сервера обновился, и он больше не принимает такой payload, а клиент использовал старый токен.
+                // Поэтому считаем такой токен истёкшим.
                 return {status: 'Failed', reason: 'Expired'}
             }
 
@@ -170,12 +172,14 @@ export class AuthService {
         const result = await this.authRepository.refreshTokens(sessionId, refreshToken, newTokenPair)
 
         if (result.status === 'CompromisedSession') {
+            // Если наша сессия (в частности refresh token) была скомпроментирована, то
+            //   нам нужно её сбросить
             await this.authRepository.revokeSession(sessionId)
         }
 
         return result
     }
-    
+
     async revokeSession(sessionId: SessionId): Promise<void> {
         await this.authRepository.revokeSession(sessionId)
     }

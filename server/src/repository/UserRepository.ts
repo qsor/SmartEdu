@@ -1,162 +1,164 @@
-import { eq, sql } from 'drizzle-orm';
-import { db } from '../db/index.js';
-import { users } from '../db/schema.js';
-import { InternalUser, toMyselfUser, UserId } from '../schema/types/User.js';
-import { CreateUserResult } from '../schema/results/auth.js';
-import { EditUserResponse } from '../schema/responses/user.js';
+import * as crypto from "node:crypto";
+import {eq} from "drizzle-orm";
+import type {NodePgDatabase} from "drizzle-orm/node-postgres";
+import {UserRow, users} from "../db/schema.js";
+import type * as schema from "../db/schema.js";
+import {InternalUser, toMyselfUser, UserId} from "../schema/types/User.js";
+import {CreateUserResult} from "../schema/results/auth.js";
+import {EditUserResponse} from "../schema/responses/user.js";
 
 export class UserRepository {
-  async createUser(params: {
-    firstName: string;
-    lastName: string | null;
-    passwordHash: string;
-    email: string | null;
-    phoneNumber: string | null;
-  }): Promise<CreateUserResult> {
-    try {
-      const [dbUser] = await db
-        .insert(users)
-        .values({
-          id: crypto.randomUUID(),
-          firstName: params.firstName,
-          lastName: params.lastName,
-          passwordHash: params.passwordHash,
-          email: params.email,
-          phoneNumber: params.phoneNumber,
+    constructor(
+        private readonly db: NodePgDatabase,
+    ) {}
+
+    async createUser(params: {
+        firstName: string
+        lastName: string | null
+        passwordHash: string
+        email: string | null
+        phoneNumber: string | null
+    }): Promise<CreateUserResult> {
+        if (params.email !== null && await this.existsByEmail(params.email))
+            return {status: 'Conflict', conflictOn: 'Email'}
+        if (params.phoneNumber !== null && await this.existsByPhoneNumber(params.phoneNumber))
+            return {status: 'Conflict', conflictOn: 'PhoneNumber'}
+
+        const user: InternalUser = {
+            id: crypto.randomUUID(),
+            firstName: params.firstName,
+            lastName: params.lastName,
+            passwordHash: params.passwordHash,
+            email: params.email?.toLowerCase() ?? null,
+            phoneNumber: params.phoneNumber,
+        }
+
+        await this.db.insert(users).values({
+            id: user.id,
+            first_name: user.firstName,
+            last_name: user.lastName,
+            password_hash: user.passwordHash,
+            email: user.email,
+            phone_number: user.phoneNumber,
         })
-        .returning();
 
-      const user: InternalUser = {
-        id: dbUser.id,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
-        passwordHash: dbUser.passwordHash,
-        email: dbUser.email,
-        phoneNumber: dbUser.phoneNumber,
-      };
+        return {status: 'Success', user: user}
+    }
 
-      return { status: 'Success', user };
-    } catch (error: any) {
-      // Обработка ошибки уникальности (PostgreSQL error code 23505)
-      if (error.code === '23505') {
-        if (error.constraint?.includes('email')) {
-          return { status: 'Conflict', conflictOn: 'Email' };
+    async exists(id: UserId): Promise<boolean> {
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.id, id))
+            .limit(1)
+
+        return user !== undefined
+    }
+
+    async existsByEmail(email: string): Promise<boolean> {
+        email = email.toLowerCase()
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.email, email))
+            .limit(1)
+
+        return user !== undefined
+    }
+
+    async existsByPhoneNumber(phoneNumber: string): Promise<boolean> {
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.phone_number, phoneNumber))
+            .limit(1)
+
+        return user !== undefined
+    }
+
+    async getUser(id: UserId): Promise<InternalUser | null> {
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.id, id))
+            .limit(1)
+
+        return user ? toInternalUser(user) : null
+    }
+
+    async getUserByEmail(email: string): Promise<InternalUser | null> {
+        email = email.toLowerCase()
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.email, email))
+            .limit(1)
+
+        return user ? toInternalUser(user) : null
+    }
+
+    async getUserByPhoneNumber(phoneNumber: string): Promise<InternalUser | null> {
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(eq(users.phone_number, phoneNumber))
+            .limit(1)
+
+        return user ? toInternalUser(user) : null
+    }
+
+    async editUser(id: UserId, fields: {
+        firstName?: string
+        lastName?: string | null
+        email?: string | null
+    }): Promise<EditUserResponse> {
+        if (fields.email) {
+            fields.email = fields.email.toLowerCase()
+            if (await this.existsByEmail(fields.email)) {
+                return {status: 'EmailAlreadyTaken'}
+            }
         }
-        if (error.constraint?.includes('phone_number')) {
-          return { status: 'Conflict', conflictOn: 'PhoneNumber' };
+
+        const updateFields: {
+            first_name?: string
+            last_name?: string | null
+            email?: string | null
+            updated_at: Date
+        } = {
+            updated_at: new Date(),
         }
-      }
-      throw error;
+
+        if (fields.firstName !== undefined)
+            updateFields.first_name = fields.firstName
+        if (fields.lastName !== undefined)
+            updateFields.last_name = fields.lastName
+        if (fields.email !== undefined)
+            updateFields.email = fields.email
+
+        const [newUser] = await this.db
+            .update(users)
+            .set(updateFields)
+            .where(eq(users.id, id))
+            .returning()
+
+        if (!newUser)
+            throw new Error('User not found')
+
+        return {status: 'Success', myself: toMyselfUser(toInternalUser(newUser))}
     }
-  }
 
-  async exists(id: UserId): Promise<boolean> {
-    const [result] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(users)
-      .where(eq(users.id, id));
-    return Number(result.count) > 0;
-  }
+    async deleteUser(id: UserId): Promise<void> {
+        await this.db.delete(users).where(eq(users.id, id))
+    }
+}
 
-  async existsByEmail(email: string): Promise<boolean> {
-    const [result] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(users)
-      .where(eq(users.email, email));
-    return Number(result.count) > 0;
-  }
-
-  async existsByPhoneNumber(phoneNumber: string): Promise<boolean> {
-    const [result] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(users)
-      .where(eq(users.phoneNumber, phoneNumber));
-    return Number(result.count) > 0;
-  }
-
-  async getUser(id: UserId): Promise<InternalUser | null> {
-    const [dbUser] = await db.select().from(users).where(eq(users.id, id));
-    if (!dbUser) return null;
-
+function toInternalUser(row: UserRow): InternalUser {
     return {
-      id: dbUser.id,
-      firstName: dbUser.firstName,
-      lastName: dbUser.lastName,
-      passwordHash: dbUser.passwordHash,
-      email: dbUser.email,
-      phoneNumber: dbUser.phoneNumber,
-    };
-  }
-
-  async getUserByEmail(email: string): Promise<InternalUser | null> {
-    const [dbUser] = await db.select().from(users).where(eq(users.email, email));
-    if (!dbUser) return null;
-
-    return {
-      id: dbUser.id,
-      firstName: dbUser.firstName,
-      lastName: dbUser.lastName,
-      passwordHash: dbUser.passwordHash,
-      email: dbUser.email,
-      phoneNumber: dbUser.phoneNumber,
-    };
-  }
-
-  async getUserByPhoneNumber(phoneNumber: string): Promise<InternalUser | null> {
-    const [dbUser] = await db.select().from(users).where(eq(users.phoneNumber, phoneNumber));
-    if (!dbUser) return null;
-
-    return {
-      id: dbUser.id,
-      firstName: dbUser.firstName,
-      lastName: dbUser.lastName,
-      passwordHash: dbUser.passwordHash,
-      email: dbUser.email,
-      phoneNumber: dbUser.phoneNumber,
-    };
-  }
-
-  async editUser(
-    id: UserId,
-    fields: {
-      firstName?: string;
-      lastName?: string | null;
-      email?: string | null;
+        id: row.id,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        passwordHash: row.password_hash,
+        email: row.email,
+        phoneNumber: row.phone_number,
     }
-  ): Promise<EditUserResponse> {
-    if (fields.email) {
-      if (await this.existsByEmail(fields.email)) {
-        return { status: 'EmailAlreadyTaken' };
-      }
-    }
-
-    try {
-      const [dbUser] = await db
-        .update(users)
-        .set({ ...fields, updatedAt: new Date() })
-        .where(eq(users.id, id))
-        .returning();
-
-      if (!dbUser) {
-        throw new Error('User not found');
-      }
-
-      const user: InternalUser = {
-        id: dbUser.id,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
-        passwordHash: dbUser.passwordHash,
-        email: dbUser.email,
-        phoneNumber: dbUser.phoneNumber,
-      };
-
-      return { status: 'Success', myself: toMyselfUser(user) };
-    } catch (error: any) {
-      throw error;
-    }
-  }
-
-  async deleteUser(id: UserId): Promise<void> {
-    await db.delete(users).where(eq(users.id, id));
-  }
 }
