@@ -26,13 +26,13 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
-// обработка 401 и silent refresh через Cookie
+// обработка 418 и silent refresh через Cookie
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as RetryRequestConfig | undefined;
 
-    if (error.response?.status !== 401 || !originalRequest || originalRequest._retry) {
+    if (error.response?.status !== 418 || !originalRequest || originalRequest._retry) {
       return Promise.reject(error);
     }
     originalRequest._retry = true;

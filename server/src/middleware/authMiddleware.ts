@@ -47,12 +47,12 @@ async function authMiddleware(
 
     if (result.status === 'Failed') {
         if (result.reason === 'Expired') {
-            res.status(401).send({status: 'ExpiredAccessToken'})
+            res.status(418).send({status: 'ExpiredAccessToken'})
             return
         }
 
         if (result.reason === 'VerificationFailed') {
-            res.status(401).send({status: 'InvalidAccessToken'})
+            res.status(418).send({status: 'InvalidAccessToken'})
             return
         }
 
