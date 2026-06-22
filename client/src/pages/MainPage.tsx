@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; // 1. Импортируем хук навигации
 import styles from "../styles/MainPage.module.css";
 
 import { FeatureCard } from "../components/FeatureCard";
@@ -7,6 +8,8 @@ import ArrowLinkButton from "../components/button/ArrowLinkButton";
 import { Footer } from "../components/Footer";
 
 const MainPage: React.FC = () => {
+  const navigate = useNavigate();
+
   const features = [
     {
       id: 1,
@@ -49,7 +52,12 @@ const MainPage: React.FC = () => {
               Осваивайте востребованные навыки с нуля, проходите курсы,
               выполняйте практические задания и получайте сертификаты
             </p>
-            <button className={styles.primaryButton}>Начать бесплатно</button>
+            <button 
+              className={styles.primaryButton}
+              onClick={() => navigate('/catalog')}
+            >
+              Начать бесплатно
+            </button>
           </div>
 
           <div className={styles.cardsGrid}>
@@ -59,6 +67,7 @@ const MainPage: React.FC = () => {
                 title={f.title}
                 description={f.description}
                 isHighlighted={f.isHighlighted}
+                onClick={() => navigate('/catalog')}
               />
             ))}
           </div>
@@ -66,11 +75,18 @@ const MainPage: React.FC = () => {
 
         <div className={styles.categoriesRow}>
           <div className={styles.pills}>
-            {categories.map((cat) => (
-              <CategoryPill key={cat}>{cat}</CategoryPill>
-            ))}
-          </div>
-          <ArrowLinkButton>Все направления</ArrowLinkButton>
+              {categories.map((cat) => (
+                <CategoryPill 
+                  key={cat} 
+                  onClick={() => navigate('/catalog')}
+                >
+                  {cat}
+                </CategoryPill>
+              ))}
+            </div>
+          <ArrowLinkButton to="/catalog">
+            Все направления
+          </ArrowLinkButton>
         </div>
       </main>
 
