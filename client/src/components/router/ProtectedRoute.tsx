@@ -1,12 +1,25 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAppSelector } from "../../store/hooks";
+import { useAuth } from "@/hooks/useAuth";
 
-export default function ProtectedRoute() {
-  const { user, token } = useAppSelector((state) => state.auth);
+const ProtectedRoute = () => {
+  const { isAuthenticated, isLoading } = useAuth();
 
-  if (!user && !token) {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return <Outlet />;
-}
+};
+
+export default ProtectedRoute;

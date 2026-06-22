@@ -12,12 +12,10 @@ import Catalog from "@/pages/Catalog";
 import ProgressPage from "@/pages/ProgressPage";
 import CertificatesPage from "@/pages/CertificatesPage";
 import CourseDetails from "@/pages/CourseDetails";
-<<<<<<< HEAD
 import CoursePassPage from "@/pages/CoursePassPage";
 import SettingsPage from "@/pages/SettingsPage";
 import HelpPage from "@/pages/HelpPage";
-=======
->>>>>>> ce7c709 (fix: добавил ProtectedRoute, чтобы ограничить доступ к курсу)
+
 
 // Layouts
 import MainLayout from "@/components/layouts/MainLayout";
@@ -86,10 +84,7 @@ export const router = createBrowserRouter([
           },
         ],
       },
-<<<<<<< HEAD
 
-=======
->>>>>>> ce7c709 (fix: добавил ProtectedRoute, чтобы ограничить доступ к курсу)
       {
         path: "*",
         element: <Navigate to="/dashboard" replace />,
