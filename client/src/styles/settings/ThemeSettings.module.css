@@ -1,0 +1,23 @@
+.row {
+    @apply mt-1 flex items-center justify-between;
+}
+
+.title {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.switchButton {
+    @apply relative flex h-7 w-12 items-center rounded-full bg-gray-300 px-1 transition-colors;
+}
+
+.switchButtonActive {
+    @apply bg-orange-500;
+}
+
+.switchCircle {
+    @apply h-5 w-5 rounded-full bg-white shadow-sm transition-transform;
+}
+
+.switchCircleActive {
+    @apply translate-x-5;
+}

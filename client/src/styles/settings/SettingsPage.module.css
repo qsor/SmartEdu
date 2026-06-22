@@ -1,0 +1,7 @@
+.page {
+    @apply w-full max-w-[720px] pt-[48px];
+}
+
+.title {
+    @apply mb-8 text-4xl font-bold text-gray-900;
+}
