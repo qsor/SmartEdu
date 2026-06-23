@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CertificateCard from '../components/CertificateCard';
 import { Footer } from '../components/Footer';
 
@@ -11,8 +11,23 @@ interface Certificate {
   receivedDate?: string;
 }
 
-export default function CertificatesPage() {
-  const [certificates] = useState<Certificate[]>([
+const completedLessonId = 'typescript-types';
+const certificatePopupShownKey = 'typescript_certificate_popup_shown';
+
+const getCompletedLessons = (): string[] => {
+  try {
+    const completedLessons = JSON.parse(localStorage.getItem('completed_lessons') || '[]');
+
+    return Array.isArray(completedLessons) ? completedLessons : [];
+  } catch {
+    return [];
+  }
+};
+
+const hasReceivedCertificate = () => getCompletedLessons().includes(completedLessonId);
+
+const getCertificates = (): Certificate[] => {
+  const certificates: Certificate[] = [
     {
       id: 1,
       title: 'Основы JavaScript',
@@ -35,7 +50,37 @@ export default function CertificatesPage() {
       status: 'unavailable',
       progress: 20,
     },
-  ]);
+  ];
+
+  if (!hasReceivedCertificate()) {
+    return certificates;
+  }
+
+  return [
+    {
+      id: 4,
+      title: 'TypeScript с нуля',
+      category: 'Frontend разработка',
+      status: 'completed',
+      progress: 100,
+      receivedDate: new Date().toLocaleDateString('ru-RU'),
+    },
+    ...certificates,
+  ];
+};
+
+export default function CertificatesPage() {
+  const [certificates] = useState<Certificate[]>(getCertificates);
+  const [isCertificatePopupOpen, setIsCertificatePopupOpen] = useState(false);
+
+  useEffect(() => {
+    if (!hasReceivedCertificate() || localStorage.getItem(certificatePopupShownKey)) {
+      return;
+    }
+
+    setIsCertificatePopupOpen(true);
+    localStorage.setItem(certificatePopupShownKey, 'true');
+  }, []);
 
   const stats = {
     total: certificates.filter((c) => c.status === 'completed').length,
@@ -134,6 +179,37 @@ export default function CertificatesPage() {
           />
         ))}
       </div>
+
+      {isCertificatePopupOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="certificate-popup-title"
+          >
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 text-3xl font-bold text-orange-500">
+              ✓
+            </div>
+            <h2
+              id="certificate-popup-title"
+              className="mb-2 text-2xl font-bold text-gray-900"
+            >
+              Сертификат получен!
+            </h2>
+            <p className="mb-6 text-gray-600">
+              Поздравляем, сертификат за курс «TypeScript с нуля» уже доступен в этом разделе.
+            </p>
+            <button
+              type="button"
+              className="w-full rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-orange-600"
+              onClick={() => setIsCertificatePopupOpen(false)}
+            >
+              Отлично
+            </button>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

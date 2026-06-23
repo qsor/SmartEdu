@@ -10,6 +10,7 @@ interface QuizBlockProps {
 export default function QuizBlock({ topic }: QuizBlockProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [score, setScore] = useState<number | null>(null);
+  const [isCertificateReady, setIsCertificateReady] = useState(false);
   const navigate = useNavigate();
   
   const resultRef = useRef<HTMLElement>(null);
@@ -29,6 +30,7 @@ export default function QuizBlock({ topic }: QuizBlockProps) {
       [questionId]: answerId,
     }));
     setScore(null);
+    setIsCertificateReady(false);
   };
 
   const finishLesson = () => {
@@ -47,6 +49,8 @@ export default function QuizBlock({ topic }: QuizBlockProps) {
           completedLessons.push(topic.id);
           localStorage.setItem('completed_lessons', JSON.stringify(completedLessons));
         }
+        localStorage.removeItem('typescript_certificate_popup_shown');
+        setIsCertificateReady(true);
         
         const enrolledCourses = JSON.parse(localStorage.getItem('enrolled_courses') || '[]');
         if (!enrolledCourses.includes(0)) {
@@ -135,17 +139,23 @@ export default function QuizBlock({ topic }: QuizBlockProps) {
               <h2>Результат: {score} из {topic.questions.length}</h2>
               <p style={{ marginBottom: '16px' }}>
                 {score === topic.questions.length
-                  ? "Отлично! Все ответы правильные."
+                  ? "Отлично! Все ответы правильные. Сертификат готов."
                   : "Урок пройден не полностью. Можно вернуться к теории и повторить материал."}
               </p>
+
+              {isCertificateReady && (
+                <p style={{ marginBottom: '16px' }}>
+                  Сертификат можно забрать на странице «Сертификаты».
+                </p>
+              )}
               
               {score === topic.questions.length && (
                 <button
                   className={styles.primaryButton}
                   type="button"
-                  onClick={() => navigate('/progress')}
+                  onClick={() => navigate('/certificates')}
                 >
-                  Вернуться в Мои курсы
+                  Получить сертификат
                 </button>
               )}
             </div>
