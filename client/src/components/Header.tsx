@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import bellIcon from "../assets/bell.svg";
 import chevronDownIcon from "../assets/chevronDown.svg";
+import headerLogo from "../assets/logo-light.png";
 import DropdownMenu from "./dropdownMenu";
 import SearchInput from "./button/SearchInput";
 import { useAuth } from "../hooks/useAuth";
@@ -41,6 +42,11 @@ export const Header: React.FC<HeaderProps> = ({
     navigate("/help");
   };
 
+  // Вернуться на главную при нажатии на логотип
+  const handleToIndex = () => {
+    navigate("/");
+  };
+
   const displayName = user
     ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
     : "Пользователь";
@@ -49,6 +55,9 @@ export const Header: React.FC<HeaderProps> = ({
     <header
       className={`fixed right-0 top-0 z-20 h-[56px] bg-orange-500 flex items-center px-6 transition-all ${isFullWidth ? "left-0" : "left-[230px]"}`}
     >
+      <img src={headerLogo} alt="logo" className="float-left width-[20px] height-[20px]"
+      onClick={() => handleToIndex()} ></img>
+
       <div className="mx-auto w-full max-w-[520px]">
         <SearchInput />
       </div>
