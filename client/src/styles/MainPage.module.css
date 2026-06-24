@@ -1,42 +1,116 @@
-.main {
-  @apply bg-white;
+.pageWrapper {
+  @apply flex flex-col min-h-screen bg-white;
 }
 
-.twoColumns {
-  @apply container mx-auto px-4 py-16;
-  @apply grid grid-cols-2 gap-12;
+.mainContainer {
+  @apply flex-1 w-full max-w-[1400px] mx-auto px-6 py-10 md:py-16 flex flex-col gap-20;
 }
 
-.heroLeft {
-  @apply flex flex-col justify-center;
+/* ================= HERO СЕКЦИЯ ================= */
+.heroSection {
+  @apply flex flex-col lg:flex-row gap-10 lg:gap-16 items-start;
+}
+
+.heroText {
+  @apply flex-1 flex flex-col gap-6 lg:mt-6;
 }
 
 .title {
-  @apply text-5xl font-bold text-gray-900 mb-4;
+  @apply text-5xl md:text-7xl font-bold leading-tight text-gray-900 tracking-tight;
 }
 
-.orange {
+.titleHighlight {
   @apply text-orange-500;
 }
 
 .subtitle {
-  @apply text-gray-500 text-lg mb-8;
+  @apply text-xl md:text-2xl text-gray-400 font-medium max-w-lg leading-snug;
 }
 
-.primaryButton {
-  @apply bg-orange-500 text-white px-8 py-3 rounded-lg font-medium;
+.heroButton {
+  @apply mt-6 w-full sm:w-[260px];
 }
 
-.cardsGrid {
-  @apply grid grid-cols-1 xl:grid-cols-2 gap-4 w-full justify-items-center xl:justify-items-start;
+.featuresGrid {
+  @apply flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 w-full;
 }
 
-.categoriesRow {
-  @apply container mx-auto px-4 py-12;
-  @apply flex justify-between items-center;
-  @apply border-t border-gray-200;
+/* Жестко переопределяем цвета карточки (избавляемся от дефолтного amber).
+  Делаем и выделенную карточку, и ховер насыщенно оранжевыми (orange-500)
+*/
+.featuresGrid :global(.FeatureCardWrapper.highlighted),
+.featuresGrid :global(.FeatureCardWrapper):hover {
+  background-color: #f97316 !important; /* Tailwind orange-500 */
+  border-color: #ea580c !important; /* Tailwind orange-600 */
 }
 
-.pills {
-  @apply flex gap-3;
+/* Чтобы текст внутри выделенной/ховер карточки был белым */
+.featuresGrid :global(.FeatureCardWrapper.highlighted) *,
+.featuresGrid :global(.FeatureCardWrapper):hover * {
+  color: white !important;
+}
+
+/* Чуть-чуть затемняем ховер у уже выделенной карточки */
+.featuresGrid :global(.FeatureCardWrapper.highlighted):hover {
+  background-color: #ea580c !important; /* Tailwind orange-600 */
+}
+
+/* ================= КАТЕГОРИИ ================= */
+.categoriesSection {
+  @apply flex flex-col xl:flex-row items-center justify-between gap-6 w-full;
+}
+
+.categoriesWrapper {
+  @apply flex-1 flex flex-wrap items-center gap-4;
+}
+
+.categoriesAction {
+  @apply shrink-0;
+}
+
+/* ================= ТАРИФЫ ================= */
+.tariffsSection {
+  @apply flex flex-col gap-8 mb-10;
+}
+
+.tariffsTitle {
+  @apply text-4xl md:text-5xl font-bold text-gray-900 tracking-tight;
+}
+
+.tariffsGrid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-6;
+}
+
+.tariffCardGray {
+  @apply bg-white border border-gray-200 rounded-2xl p-8 flex flex-col justify-center min-h-[260px] cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-orange-500 transition-all duration-300;
+}
+.tariffCardGray h3 {
+  @apply text-4xl font-bold text-[#0f172a] mb-3 transition-colors duration-300;
+}
+.tariffCardGray p {
+  @apply text-2xl font-semibold text-gray-500 leading-snug;
+}
+.tariffCardGray:hover h3 {
+  @apply text-orange-500;
+}
+
+.tariffCardYellow {
+  @apply relative bg-orange-50 border border-orange-200 rounded-2xl p-8 flex flex-col justify-center min-h-[260px] cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:border-orange-500 transition-all duration-300;
+}
+.badge100 {
+  @apply absolute -top-5 -right-5 bg-orange-500 text-white font-black text-2xl w-[70px] h-[70px] rounded-full flex items-center justify-center -rotate-12 shadow-md z-10 select-none;
+}
+.tariffCardYellow h3 {
+  @apply text-4xl font-bold text-orange-600 mb-3 relative z-10;
+}
+.tariffCardYellow p {
+  @apply text-2xl font-semibold text-gray-700 leading-snug relative z-10;
+}
+
+.tariffCardAction {
+  @apply flex flex-col gap-4 min-h-[260px];
+}
+
+.tariffRealImage {
+  @apply flex-1 w-full h-[180px] object-cover rounded-[1rem] shadow-sm border border-gray-100;
 }

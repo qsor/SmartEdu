@@ -58,9 +58,9 @@ function RegisterScreen() {
     }
 
     if (!form.email.trim()) {
-      nextErrors.email = "Введите email";
+      nextErrors.email = "Введите почту";
     } else if (!emailPattern.test(form.email)) {
-      nextErrors.email = "Введите корректный email";
+      nextErrors.email = "Введите корректную почту";
     }
 
     if (!form.password) {
@@ -103,7 +103,7 @@ function RegisterScreen() {
 
   return (
     <section className={styles.loginSection}>
-      <h1 className={styles.title}>Registration</h1>
+      <h1 className={styles.title}>Регистрация</h1>
 
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {authError && (
@@ -117,13 +117,13 @@ function RegisterScreen() {
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="name">
-            Name
+            Имя
           </label>
           <InputText
             id="name"
             name="name"
             type="text"
-            placeholder="Name"
+            placeholder="Имя"
             value={form.name}
             hasError={!!errors.name}
             onChange={changeField}
@@ -136,7 +136,7 @@ function RegisterScreen() {
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="email">
-            Email
+            Почта
           </label>
           <InputText
             id="email"
@@ -155,13 +155,13 @@ function RegisterScreen() {
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="password">
-            Password
+            Пароль
           </label>
           <InputText
             id="password"
             name="password"
             type="password"
-            placeholder="Password"
+            placeholder="Пароль"
             value={form.password}
             hasError={!!errors.password}
             onChange={changeField}
@@ -174,13 +174,13 @@ function RegisterScreen() {
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="repeatPassword">
-            Repeat password
+            Повторите пароль
           </label>
           <InputText
             id="repeatPassword"
             name="repeatPassword"
             type="password"
-            placeholder="Password"
+            placeholder="Пароль"
             value={form.repeatPassword}
             hasError={!!errors.repeatPassword}
             onChange={changeField}

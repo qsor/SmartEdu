@@ -1,0 +1,44 @@
+.bannerSection {
+  @apply w-full h-[220px] md:h-[280px] rounded-2xl flex flex-col items-center justify-center relative overflow-hidden;
+  background: linear-gradient(to right, #FFF3E0, #E3F2FD);
+}
+
+.bannerVisualContent {
+  /* Добавлено w-full и justify-center для идеального центрирования всей конструкции */
+  @apply flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 z-10 px-6 w-full max-w-4xl text-center md:text-left animate-[fadeIn_0.5s_ease-in-out];
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bannerLogo {
+  /* Добавлено shrink-0, чтобы иконка не сжималась, и чуть увеличен размер на десктопе */
+  @apply w-16 h-16 md:w-24 md:h-24 object-contain shrink-0;
+}
+
+.bannerTextContainer {
+  /* Ограничиваем максимальную ширину текста, чтобы он не уезжал вправо и не двигал логотип */
+  @apply flex flex-col gap-2 md:max-w-[500px];
+}
+
+.bannerMainTitle {
+  @apply text-xl md:text-[24px] font-bold text-[#1e293b] leading-tight;
+}
+
+.bannerSubTitle {
+  @apply text-sm md:text-base text-gray-500 font-medium;
+}
+
+.bannerDots {
+  @apply absolute bottom-6 flex gap-3 z-10;
+}
+
+.dotActive {
+  @apply w-10 h-2 rounded-full bg-orange-500 cursor-pointer transition-all duration-300;
+}
+
+.dot {
+  @apply w-10 h-2 rounded-full bg-gray-300 cursor-pointer hover:bg-gray-400 transition-all duration-300;
+}

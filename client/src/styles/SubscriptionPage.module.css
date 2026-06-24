@@ -1,0 +1,106 @@
+.pageWrapper {
+  @apply flex flex-col min-h-screen bg-white;
+}
+
+.mainContainer {
+  @apply flex-1 w-full max-w-[1400px] mx-auto px-6 py-12 md:py-20;
+}
+
+.contentGrid {
+  @apply flex flex-col lg:flex-row gap-16 lg:gap-24 items-center lg:items-start;
+}
+
+/* ================= ЛЕВАЯ ЧАСТЬ (Текст) ================= */
+.infoSection {
+  @apply flex-1 flex flex-col gap-10 lg:mt-4 w-full;
+}
+
+.mainTitle {
+  @apply text-4xl md:text-5xl lg:text-[56px] font-bold text-gray-900 leading-[1.1] tracking-tight;
+}
+
+.highlight {
+  @apply text-orange-500;
+}
+
+.benefitsBox {
+  @apply flex flex-col gap-6;
+}
+
+.benefitsTitle {
+  @apply text-2xl md:text-[28px] font-bold text-gray-800;
+}
+
+.benefitsList {
+  @apply flex flex-col gap-4 text-lg md:text-xl font-medium text-gray-700;
+}
+
+.benefitsList li {
+  @apply flex items-start gap-4;
+}
+
+.checkIcon {
+  @apply mt-1 w-6 h-6 text-orange-500 shrink-0 bg-orange-50 rounded-full flex items-center justify-center p-1;
+}
+
+/* ================= ПРАВАЯ ЧАСТЬ (Карточка) ================= */
+.cardSection {
+  @apply w-full lg:w-[480px] shrink-0 relative;
+}
+
+/* Дизайнерская фишка: легкое свечение под карточкой */
+.glowEffect {
+  @apply absolute -inset-4 bg-gradient-to-r from-orange-400 to-orange-200 opacity-20 blur-2xl rounded-full z-0 pointer-events-none;
+}
+
+.pricingCard {
+  @apply relative z-10 bg-white rounded-[2rem] p-10 flex flex-col gap-10 shadow-2xl border border-gray-100;
+}
+
+.cardHeader {
+  @apply flex flex-col gap-6;
+}
+
+.cardTitle {
+  @apply text-2xl font-bold text-gray-900 text-center;
+}
+
+.priceContainer {
+  @apply flex items-baseline justify-center gap-3 flex-wrap;
+}
+
+.priceValue {
+  @apply text-6xl font-black text-gray-900;
+}
+
+.pricePeriod {
+  @apply text-lg font-semibold text-gray-500 text-center;
+}
+
+.cardAction {
+  @apply flex flex-col gap-4 mt-4;
+}
+
+/* ================= КНОПКА (3 Состояния) ================= */
+.submitButton {
+  @apply w-full py-5 text-[18px] font-bold rounded-xl transition-all duration-300 shadow-md;
+}
+
+/* Состояние 1: Оранжевая (Idle) */
+.btnIdle {
+  @apply bg-[#F97316] text-white hover:bg-[#EA580C] hover:shadow-lg active:scale-[0.98] cursor-pointer;
+}
+
+/* Состояние 2: Серая (Loading) */
+.btnLoading {
+  @apply bg-[#9CA3AF] text-white cursor-wait opacity-90;
+}
+
+/* Состояние 3: Зеленая (Active) */
+.btnActive {
+  @apply bg-[#16A34A] text-white cursor-default shadow-none;
+}
+
+.disclaimer {
+  @apply text-[13px] text-gray-400 text-center font-medium px-4 leading-snug;
+}

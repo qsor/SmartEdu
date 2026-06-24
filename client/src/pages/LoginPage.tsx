@@ -85,7 +85,7 @@ function LoginScreen() {
 
   return (
     <section className={styles.loginSection}>
-      <h1 className={styles.title}>Login</h1>
+      <h1 className={styles.title}>Авторизация</h1>
 
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {authError && (
@@ -99,7 +99,7 @@ function LoginScreen() {
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="email">
-            Email
+            Почта
           </label>
           <InputText
             id="email"
@@ -118,13 +118,13 @@ function LoginScreen() {
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="password">
-            Password
+            Пароль
           </label>
           <InputText
             id="password"
             name="password"
             type="password"
-            placeholder="Password"
+            placeholder="Пароль"
             value={form.password}
             hasError={!!errors.password}
             onChange={changeField}
@@ -138,7 +138,7 @@ function LoginScreen() {
         <button 
           className={styles.forgotButton} 
           type="button"
-          onClick={() => navigate("/reset-password")} // Добавь этот переход
+          onClick={() => navigate("/reset-password")}
         >
           Забыли пароль?
         </button>

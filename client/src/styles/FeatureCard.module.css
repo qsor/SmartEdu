@@ -2,14 +2,14 @@
   @apply flex flex-col flex-wrap justify-between w-full max-w-[420px] h-[320px] p-4 border border-gray-500 rounded-xl transition-colors;
   
   &:hover, &.highlighted {
-    @apply bg-amber-500 border-black;
+    @apply bg-orange-500 border-black;
     * {
       @apply text-white;
     }
   }
 
   &.highlighted:hover { 
-    @apply bg-amber-600;
+    @apply bg-orange-600;
   }
   
 }
