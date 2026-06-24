@@ -11,6 +11,7 @@ interface DropdownMenuProps {
   userAvatar?: string;
   onLogout: () => void;
   onSettingsClick: () => void;
+  onHelpClick: () => void;
 }
 
 export default function DropdownMenu({
@@ -18,6 +19,7 @@ export default function DropdownMenu({
   userAvatar = defaultAvatar,
   onLogout,
   onSettingsClick,
+  onHelpClick,
 }: DropdownMenuProps) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
@@ -56,7 +58,9 @@ export default function DropdownMenu({
             <span className="text-sm whitespace-nowrap">Тёмная тема</span>
           </li>
 
-          <li className="hover:bg-[#F5F5F5] flex flex-row items-center gap-4 p-3 rounded-md cursor-pointer h-12 transition-colors">
+          <li
+           onClick={onHelpClick}
+          className="hover:bg-[#F5F5F5] flex flex-row items-center gap-4 p-3 rounded-md cursor-pointer h-12 transition-colors">
             <img
               src={questionIcon}
               className="w-5 h-5 flex-shrink-0"

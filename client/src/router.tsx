@@ -1,13 +1,11 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "./App";
 
-// Публичные страницы
 import MainPage from "@/pages/MainPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 
-// Защищенные страницы
 import Catalog from "@/pages/Catalog";
 import ProgressPage from "@/pages/ProgressPage";
 import CertificatesPage from "@/pages/CertificatesPage";
@@ -16,8 +14,6 @@ import CoursePassPage from "@/pages/CoursePassPage";
 import SettingsPage from "@/pages/SettingsPage";
 import HelpPage from "@/pages/HelpPage";
 
-
-// Layouts
 import MainLayout from "@/components/layouts/MainLayout";
 import ProtectedRoute from "@/ProtectedRoute";
 
@@ -43,48 +39,34 @@ export const router = createBrowserRouter([
         element: <ResetPasswordPage />,
       },
       {
+        element: <MainLayout />,
+        children: [
+          {
+            path: "dashboard",
+            element: <MainPage />,
+          },
+        ],
+      },
+      {
         element: <ProtectedRoute />,
         children: [
           {
             element: <MainLayout />,
             children: [
-              {
-                path: "dashboard",
-                element: <MainPage />,
-              },
-              {
-                path: "catalog",
-                element: <Catalog />,
-              },
-              {
-                path: "progress",
-                element: <ProgressPage />,
-              },
-              {
-                path: "certificates",
-                element: <CertificatesPage />,
-              },
-              {
-                path: "course/:id",
-                element: <CourseDetails />,
-              },
+              { path: "catalog", element: <Catalog /> },
+              { path: "progress", element: <ProgressPage /> },
+              { path: "certificates", element: <CertificatesPage /> },
+              { path: "course/:id", element: <CourseDetails /> },
+              { path: "settings", element: <SettingsPage /> },
+              { path: "help", element: <HelpPage /> },
             ],
           },
           {
             path: "course/:id/lesson/:lessonId",
             element: <CoursePassPage />,
           },
-          {
-            path: "settings",
-            element: <SettingsPage />,
-          },
-          {
-            path: "help",
-            element: <HelpPage />,
-          },
         ],
       },
-
       {
         path: "*",
         element: <Navigate to="/dashboard" replace />,
