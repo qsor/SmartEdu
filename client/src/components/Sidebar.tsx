@@ -1,9 +1,10 @@
 import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import chartIcon from "../assets/chart.svg";
 import documentIcon from "../assets/document.svg";
 import folderIcon from "../assets/folder.svg";
 import homeIcon from "../assets/home.svg";
-import logo from "../../public/logo.png";
+import logo from "../assets/logo-light.png";
 
 const navItems = [
   { to: "/dashboard", label: "Дашборд", icon: homeIcon },
@@ -13,11 +14,17 @@ const navItems = [
 ];
 
 export function Sidebar() {
+
+  const navigate = useNavigate();
+
+  const handleToIndex = () => {
+    navigate("/");
+  };
   return (
     <aside className="fixed left-0 top-0 z-30 h-screen w-[230px] bg-white">
       <div className="flex h-[56px] items-center gap-4 px-5 bg-orange-500">
-        <img src={logo} alt="" className="h-5 w-5" aria-hidden="true" />
-        <span className="font-semibold text-white">EduSphere</span>
+        <img src={logo} alt="" className="h-5 w-5" aria-hidden="true" onClick={() => handleToIndex() }/>
+        <span className="font-semibold text-white" onClick={() => handleToIndex() }>EduSphere</span>
       </div>
 
       <nav className="pt-2 h-full space-y-2 px-2 border-r border-black/10">
