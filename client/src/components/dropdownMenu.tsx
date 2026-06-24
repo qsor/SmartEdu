@@ -3,7 +3,6 @@ import moonIcon from "../assets/moon.svg";
 import questionIcon from "../assets/question.svg";
 import gearIcon from "../assets/gear.svg";
 import signOutIcon from "../assets/signOut.svg";
-import defaultAvatar from "../assets/userzaglyshka.svg";
 import ConfirmDialog from "./ConfirmDialog";
 
 interface DropdownMenuProps {
@@ -15,7 +14,7 @@ interface DropdownMenuProps {
 
 export default function DropdownMenu({
   userName = "Имя Фамилия",
-  userAvatar = defaultAvatar,
+  userAvatar,
   onLogout,
   onSettingsClick,
 }: DropdownMenuProps) {
@@ -30,15 +29,23 @@ export default function DropdownMenu({
     onLogout(); // выход
   };
 
+  const firstLetter = userName ? userName.charAt(0).toUpperCase() : "?";
+
   return (
     <>
       <div className="bg-white px-2 py-3 text-black rounded-md select-none w-80 border border-[#D9D9D9] shadow-lg">
         <div className="flex gap-4 justify-center items-center">
-          <img
-            src={userAvatar}
-            className="w-12 h-12 object-cover rounded-full"
-            alt="profile"
-          />
+          {userAvatar ? (
+            <img
+              src={userAvatar}
+              className="w-12 h-12 object-cover rounded-full"
+              alt="profile"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-orange-400 flex items-center justify-center text-white font-semibold text-lg">
+              {firstLetter}
+            </div>
+          )}
           <div className="flex-1">
             <h1 className="whitespace-nowrap font-medium">{userName}</h1>
           </div>
@@ -84,7 +91,7 @@ export default function DropdownMenu({
           >
             <img
               src={signOutIcon}
-              className="w-5 h-5 flex-shrink-0 brightness-0 invert saturate-100"
+              className="w-5 h-5 flex-shrink-0"
               alt="Выход"
             />
             <span className="text-sm whitespace-nowrap">Выход</span>
