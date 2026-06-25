@@ -1,10 +1,16 @@
 import { Router } from "express";
 import { CourseService } from "../service/CourseService.js";
-import {toCourse} from "../schema/types/InternalCourse.js";
+import { EnrollmentService } from "../service/EnrollmentService.js";
+import { toCourse } from "../schema/types/InternalCourse.js";
+import {LessonService} from "../service/LessonService.js";
+import {toLesson} from "../schema/types/InternalLesson.js";
+import {MyLessonProgress} from "../schema/types/Lesson.js";
 
 export function courseRoutes(
     router: Router,
-    courseService: CourseService
+    courseService: CourseService,
+    lessonService: LessonService,
+    enrollmentService: EnrollmentService,
 ) {
     router.get("/course/catalog", async (_req, res) => {
         const courses = (await courseService.getCatalog())
@@ -39,5 +45,48 @@ export function courseRoutes(
             .map(internalCourse => toCourse(internalCourse))
 
         return res.status(200).json(searchResults)
+    })
+
+    router.post("/course/:id/join", async (req, res) => {
+        if (!req.actor.isAuthenticated) {
+            return res.status(401).send({
+                message: "Unauthorized",
+            });
+        }
+
+        const result = await enrollmentService.joinCourse(
+            req.actor.userId,
+            req.params.id,
+        );
+
+        if (result.status === "CourseNotFound") {
+            return res.status(404).send({
+                message: "Course not found",
+            });
+        }
+
+        if (result.status === "AlreadyJoined") {
+            return res.status(409).send({
+                message: "Already joined",
+            });
+        }
+
+        return res.status(200).send({
+            status: "Success",
+        });
+    });
+
+    router.get("/course/:id/lessons", async (req, res) => {
+        const internalLessons = await lessonService.getByCourseId(req.params.id)
+        const lessons = await Promise.all(internalLessons.map(async (internalLesson) => {
+            // Для неавторизованных пользователей myLessonProgress всегда 'NotCompleted'
+            const myProgress: MyLessonProgress = req.actor.isAuthenticated
+                ? await lessonService.getMyProgress(req.actor.userId, internalLesson.id)
+                : 'NotCompleted'
+
+            return toLesson(internalLesson, { myProgress })
+        }))
+
+        res.status(200).json(lessons)
     })
 }

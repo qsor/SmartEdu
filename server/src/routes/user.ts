@@ -1,13 +1,16 @@
-import {Request, Response, Router} from "express";
-import {toMyselfUser, toOtherUser, User, UserId} from "../schema/types/User.js";
-import {AuthService} from "../service/AuthService.js";
-import {UserService} from "../service/UserService.js";
-import {EditUserBody} from "../schema/http/users.js";
+import { Request, Response, Router } from "express";
+import { toMyselfUser, toOtherUser, User, UserId } from "../schema/types/User.js";
+import { AuthService } from "../service/AuthService.js";
+import { UserService } from "../service/UserService.js";
+import { EnrollmentService } from "../service/EnrollmentService.js";
+import { toCourse } from "../schema/types/InternalCourse.js";
+import { EditUserBody } from "../schema/http/users.js";
 
 export function userRoutes(
     router: Router,
     authService: AuthService,
     userService: UserService,
+    enrollmentService: EnrollmentService,
 ) {
     router.get('/user/:id', async (req, res: Response<User>) => {
         const id: UserId = req.params.id
@@ -39,4 +42,22 @@ export function userRoutes(
             return res.status(400).send(response)
         }
     })
+
+    router.get(
+        "/users/me/courses",
+        async (req, res) => {
+            if (!req.actor.isAuthenticated) {
+                return res.status(401).send()
+            }
+
+            const courses =
+                await enrollmentService.getMyCourses(
+                    req.actor.userId
+                )
+
+            return res.status(200).json(
+                courses.map(toCourse)
+            )
+        }
+    )
 }
