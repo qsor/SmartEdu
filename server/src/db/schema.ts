@@ -1,4 +1,5 @@
 import {pgTable, uuid, varchar, text, timestamp, integer, doublePrecision, bigint} from 'drizzle-orm/pg-core';
+import {sql} from "drizzle-orm";
 
 export type UserRow = typeof users.$inferSelect
 export type UserInsert = typeof users.$inferInsert
@@ -21,6 +22,18 @@ export const courses = pgTable('courses', {
     short_description: text().notNull(),
     tags: text().array().notNull(),
     rating: doublePrecision().notNull(),
+});
+
+export type LessonRow = typeof lessons.$inferSelect
+export type LessonInsert = typeof lessons.$inferInsert
+export const lessons = pgTable('lessons', {
+    id: uuid().default(sql`gen_random_uuid()::text`).primaryKey(),
+    course: uuid().notNull()
+        .references(() => courses.id, {onDelete: 'restrict', onUpdate: 'cascade'}),
+    course_order: integer().notNull(),
+    title: text().notNull(),
+    short_description: text().notNull(),
+    xp: integer().notNull(),
 });
 
 export type SessionRow = typeof sessions.$inferSelect

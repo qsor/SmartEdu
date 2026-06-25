@@ -9,12 +9,14 @@ import { AuthService } from "../service/AuthService.js";
 import { CourseService } from "../service/CourseService.js";
 import { EnrollmentService } from "../service/EnrollmentService.js";
 import Duration = Temporal.Duration;
+import {LessonService} from "../service/LessonService.js";
 
 export function allRoutes(
     router: Router,
     authService: AuthService,
     userService: UserService,
     courseService: CourseService,
+    lessonService: LessonService,
     enrollmentService: EnrollmentService,
     config: {
         secureCookie: boolean
@@ -25,5 +27,5 @@ export function allRoutes(
     authRoutes(router, authService, userService, config)
     userRoutes(router, authService, userService, enrollmentService)
 
-    courseRoutes(router, courseService, enrollmentService)
+    courseRoutes(router, courseService, lessonService, enrollmentService)
 }

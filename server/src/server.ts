@@ -11,12 +11,14 @@ const {
     authRepository,
     userRepository,
     courseRepository,
+    lessonRepository,
     enrollmentRepository,
     accessJwtService,
     refreshJwtService,
     authService,
     userService,
     courseService,
+    lessonService,
     enrollmentService,
 } = await bootstrap()
 
@@ -49,7 +51,7 @@ expressApp.get("/", (_req, res) => {
 expressApp.use(createAuthMiddleware(authService))
 
 const apiRouter = Router()
-allRoutes(apiRouter, authService, userService, courseService, enrollmentService, {
+allRoutes(apiRouter, authService, userService, courseService, lessonService, enrollmentService, {
     secureCookie: env.secureCookie,
     refreshTokenCookieLifetime: env.refreshTokenCookieLifetime,
 })

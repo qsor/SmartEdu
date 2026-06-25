@@ -2,10 +2,14 @@ import { Router } from "express";
 import { CourseService } from "../service/CourseService.js";
 import { EnrollmentService } from "../service/EnrollmentService.js";
 import { toCourse } from "../schema/types/InternalCourse.js";
+import {LessonService} from "../service/LessonService.js";
+import {toLesson} from "../schema/types/InternalLesson.js";
+import {MyLessonProgress} from "../schema/types/Lesson.js";
 
 export function courseRoutes(
     router: Router,
     courseService: CourseService,
+    lessonService: LessonService,
     enrollmentService: EnrollmentService,
 ) {
     router.get("/course/catalog", async (_req, res) => {
@@ -71,4 +75,18 @@ export function courseRoutes(
             status: "Success",
         });
     });
+
+    router.get("/course/:id/lessons", async (req, res) => {
+        const internalLessons = await lessonService.getByCourseId(req.params.id)
+        const lessons = await Promise.all(internalLessons.map(async (internalLesson) => {
+            // Для неавторизованных пользователей myLessonProgress всегда 'NotCompleted'
+            const myProgress: MyLessonProgress = req.actor.isAuthenticated
+                ? await lessonService.getMyProgress(req.actor.userId, internalLesson.id)
+                : 'NotCompleted'
+
+            return toLesson(internalLesson, { myProgress })
+        }))
+
+        res.status(200).json(lessons)
+    })
 }
