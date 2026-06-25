@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import CatalogCourseCard from '../components/CatalogCourseCard';
+
 
 import testCourseImage from '../assets/course-covers/test-course.png';
 import reactImage from '../assets/course-covers/react.png';
@@ -81,9 +82,37 @@ export default function CatalogPage() {
  const [courses, setCourses] = useState<Course[]>([]); 
  const navigate = useNavigate();
 
+import api from '@/api/instance';
+
+export default function CatalogPage() {
+  const [courses, setCourses] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  
+  // 1. Достаем параметр search из URL (например, ?search=React)
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
+
+
   useEffect(() => {
-    setCourses(mockCourses);
-  }, []);
+    setIsLoading(true);
+
+    // 2. Определяем, на какой эндпоинт стучаться
+    const fetchUrl = searchQuery 
+      ? `/course/catalog/search?q=${encodeURIComponent(searchQuery)}` 
+      : `/course/catalog`;
+
+    // 3. Делаем запрос к бэкенду
+    api.get(fetchUrl)
+      .then(res => {
+        setCourses(res.data);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("Ошибка при загрузке каталога:", err);
+        setIsLoading(false);
+      });
+  }, [searchQuery]); // Перезапускаем запрос при каждом изменении URL-параметра
 
   const handleCardClick = (courseId: number | string) => {
     navigate(`/course/${courseId}`);
@@ -91,6 +120,7 @@ export default function CatalogPage() {
 
   return (
     <div className="w-full pt-10">
+
       <h1 className="text-4xl font-bold text-gray-900 mb-8">Каталог курсов</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 w-full">
         {courses.map((course) => (
@@ -105,6 +135,33 @@ export default function CatalogPage() {
           />
         ))}
       </div>
+
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">
+        {searchQuery ? `Результаты поиска: "${searchQuery}"` : "Каталог курсов"}
+      </h1>
+      
+      {isLoading ? (
+        <div className="text-gray-500">Загрузка курсов...</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 w-full">
+          {courses.length > 0 ? (
+            courses.map((course) => (
+              <CatalogCourseCard
+                key={course.id}
+                title={course.title}
+                // Drizzle в связке с бэком может отдавать как shortDescription, так и short_description
+                description={course.shortDescription || course.short_description || "Описание отсутствует"}
+                rating={course.rating}
+                price={course.price || 0} // В базе данных поля price пока нет, ставим заглушку
+                onCardClick={() => handleCardClick(course.id)}
+              />
+            ))
+          ) : (
+            <p className="text-gray-500 col-span-full">По вашему запросу ничего не найдено.</p>
+          )}
+        </div>
+      )}
+
     </div>
   );
 }
