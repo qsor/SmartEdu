@@ -35,3 +35,7 @@
 .price {
   @apply text-xl font-bold text-gray-900;
 }
+
+.courseImage {
+  @apply max-h-full max-w-[70%] object-contain;
+}

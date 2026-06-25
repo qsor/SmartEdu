@@ -7,7 +7,7 @@ interface CatalogCourseCardProps {
   description?: string;
   rating?: number;
   price?: number;
-  imagePlaceholder?: boolean;
+  imageSrc?: string;
   onCardClick?: () => void;
 }
 
@@ -16,7 +16,7 @@ const CatalogCourseCard: React.FC<CatalogCourseCardProps> = ({
   description = "Описание курса, представьте что здесь очень много текста. Лорем Ипсум Дорем Сит Амет",
   rating = 5,
   price = 1200,
-  imagePlaceholder = true,
+  imageSrc,
   onCardClick = () => console.log('Открыть курс')
 }) => {
   return (
@@ -25,10 +25,16 @@ const CatalogCourseCard: React.FC<CatalogCourseCardProps> = ({
       className={styles.card}
     >
       <div className={styles.imageContainer}>
-        {imagePlaceholder && (
-          <span className={styles.imagePlaceholderText}>Обложка курса</span>
-        )}
-      </div>
+  {imageSrc ? (
+    <img
+      src={imageSrc}
+      alt={title}
+      className={styles.courseImage}
+    />
+  ) : (
+    <span className={styles.imagePlaceholderText}>Обложка курса</span>
+  )}
+</div>
 
       <div className={styles.contentContainer}>
         <h3 className={styles.title}>
