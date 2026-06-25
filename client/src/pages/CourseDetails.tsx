@@ -31,7 +31,7 @@ export default function CourseDetails() {
     }, 500);
   }, [id, isFreeCourse]);
 
-  if (isLoading) return <div className="p-8">Загрузка...</div>;
+  if (isLoading) return <div className="pt-10 text-gray-400">Загрузка...</div>;
 
   return (
     <div className={styles.container}>

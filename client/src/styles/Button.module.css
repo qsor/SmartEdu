@@ -16,11 +16,11 @@
 }
 
 .iconButtonDisabled {
-    @apply bg-orange-400 text-white cursor-not-allowed;
+    @apply bg-orange-500/0 text-orange-500 cursor-not-allowed;
 }
 
 .iconButtonNormal {
-    @apply bg-orange-500 text-white cursor-pointer hover:bg-orange-600;
+    @apply bg-orange-500 text-white cursor-pointer border-orange-500 hover:bg-orange-600;
 }
 
 .iconWrapper {

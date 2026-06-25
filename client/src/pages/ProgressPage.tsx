@@ -54,8 +54,8 @@ const ProgressPage: React.FC = () => {
   const hasCourses = myCourses.length > 0;
 
   return (
-    <div className="w-full pt-4">
-      <h2 className="text-3xl font-bold text-gray-900 mb-8">
+    <div className="w-full pt-10 pb-10">
+      <h2 className="text-4xl font-bold text-gray-900 mb-8">
         Привет, {name}!
       </h2>
 

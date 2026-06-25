@@ -25,7 +25,7 @@ export default function CertificateCard({
       bgColor: 'bg-green-100',
       textColor: 'text-green-700',
       buttonLabel: 'Скачать Сертификат',
-      buttonColor: 'bg-orange-500 hover:bg-orange-600',
+      buttonColor: 'text-white bg-orange-500 hover:bg-orange-600',
       buttonDisabled: false,
     },
     'in-progress': {
@@ -33,7 +33,7 @@ export default function CertificateCard({
       bgColor: 'bg-yellow-100',
       textColor: 'text-yellow-700',
       buttonLabel: 'Продолжить Обучение',
-      buttonColor: 'bg-yellow-200 text-yellow-700',
+      buttonColor: 'text-white bg-orange-500 hover:bg-orange-600',
       buttonDisabled: false,
     },
     unavailable: {
@@ -41,7 +41,7 @@ export default function CertificateCard({
       bgColor: 'bg-gray-100',
       textColor: 'text-gray-600',
       buttonLabel: 'Пока недоступен',
-      buttonColor: 'bg-gray-200 text-gray-500',
+      buttonColor: 'border-2 border-orange-500 text-orange-500',
       buttonDisabled: true,
     },
   };
