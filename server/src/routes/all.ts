@@ -7,6 +7,7 @@ import { courseRoutes } from "./course.js";
 import { UserService } from "../service/UserService.js";
 import { AuthService } from "../service/AuthService.js";
 import { CourseService } from "../service/CourseService.js";
+import { EnrollmentService } from "../service/EnrollmentService.js";
 import Duration = Temporal.Duration;
 
 export function allRoutes(
@@ -14,6 +15,7 @@ export function allRoutes(
     authService: AuthService,
     userService: UserService,
     courseService: CourseService,
+    enrollmentService: EnrollmentService,
     config: {
         secureCookie: boolean
         refreshTokenCookieLifetime: Duration
@@ -21,7 +23,7 @@ export function allRoutes(
 ) {
     healthRoutes(router)
     authRoutes(router, authService, userService, config)
-    userRoutes(router, authService, userService)
+    userRoutes(router, authService, userService, enrollmentService)
 
-    courseRoutes(router, courseService)
+    courseRoutes(router, courseService, enrollmentService)
 }
