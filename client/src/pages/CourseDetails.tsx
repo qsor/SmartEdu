@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { AxiosResponse } from "axios";
 import CourseHeader from "../components/ui/CourseHeader";
 import CourseDescription from "../components/ui/CourseDescription";
 import CourseActionBlock from "../components/CourseActionBlock";
-import api from "@/api/instance"; // Импортируем наш настроенный axios-инстанс
+import api from "@/api/instance";
 import styles from "../styles/CourseDetails.module.css";
 import arrow from '../assets/arrow-sm-left-svgrepo-com.svg';
 
-// Описываем интерфейс данных, которые приходят с обновленного бэка
 interface Lesson {
   id: string;
   title: string;
@@ -17,7 +17,7 @@ interface Lesson {
 
 interface CourseDetailsData {
   courseId: string;
-  title?: string; // Если заголовка нет в details, подстрахуемся
+  title?: string;
   longDescription: string;
   rating: number;
   price?: number;
@@ -33,23 +33,24 @@ export default function CourseDetails() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!id) return;
+    
     setIsLoading(true);
     setError(null);
 
-<<<<<<< Updated upstream
-  if (isLoading) return <div className="pt-10 text-gray-400">Загрузка...</div>;
-=======
-    // Делаем реальный запрос к бэкенду
-    api.get(`/course/${id}`)
-      .then(res => {
-        setCourse(res.data);
-        setIsLoading(false);
-      })
-      .catch(err => {
+    const fetchCourse = async () => {
+      try {
+        const response: AxiosResponse<CourseDetailsData> = await api.get<CourseDetailsData>(`/course/${id}`);
+        setCourse(response.data);
+      } catch (err) {
         console.error("Ошибка при загрузке деталей курса:", err);
         setError("Не удалось загрузить информацию о курсе.");
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+
+    fetchCourse();
   }, [id]);
 
   if (isLoading) {
@@ -67,11 +68,8 @@ export default function CourseDetails() {
     );
   }
 
-  // Так как в схеме БД (schema.ts) поля price пока нет, временно захардкодим 0 (Бесплатно) или дефолтное значение
   const coursePrice = course.price !== undefined ? course.price : 0;
-  // Если бэк не возвращает title в getCourseDetails, временно подставим заглушку (или можно доработать репозиторий на бэке)
   const courseTitle = course.title || "Изучаемый курс";
->>>>>>> Stashed changes
 
   return (
     <div className={styles.container}>
@@ -87,7 +85,7 @@ export default function CourseDetails() {
           <CourseHeader title={courseTitle} rating={course.rating} price={coursePrice} />
           <CourseDescription text={course.longDescription} />
           
-          {/* Секция: Программа курса / Топики */}
+          {/* Секция: Программа курса */}
           <div className="mt-8 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
             <h2 className="text-xl font-bold text-gray-900 mb-6">Программа обучения</h2>
             
@@ -99,12 +97,10 @@ export default function CourseDetails() {
                     onClick={() => navigate(`/course/${id}/lesson/${lesson.id}`)}
                     className="flex items-start gap-4 p-4 border border-gray-100 rounded-xl bg-gray-50 hover:bg-orange-50/50 hover:border-orange-300 transition-all cursor-pointer group"
                   >
-                    {/* Номер урока */}
                     <div className="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm shrink-0 group-hover:bg-orange-500 group-hover:text-white transition-colors">
                       {String(index + 1).padStart(2, '0')}
                     </div>
                     
-                    {/* Мета топика */}
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center gap-2 mb-1">
                         <h4 className="font-bold text-gray-900 text-base truncate group-hover:text-orange-600 transition-colors">
@@ -127,7 +123,7 @@ export default function CourseDetails() {
           </div>
         </div>
 
-        {/* Правая колонка: Визуал и кнопка действия */}
+        {/* Правая колонка */}
         <div className={styles.rightColumn}>
           <div className={styles.imagePlaceholder}>Обложка курса</div>
           <CourseActionBlock courseId={id!} price={coursePrice} />

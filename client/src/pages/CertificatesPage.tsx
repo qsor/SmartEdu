@@ -2,6 +2,32 @@ import { useEffect, useState } from 'react';
 import CertificateCard from '../components/CertificateCard';
 import { Footer } from '../components/Footer';
 
+// 🔹 Утилита для скачивания пустого валидного PDF
+const downloadEmptyPDF = (fileName = 'certificate.pdf') => {
+  const pdfContent = `%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] >> endobj
+xref 0 4
+0000000000 65535 f
+0000000009 00000 n
+0000000058 00000 n
+0000000115 00000 n
+trailer << /Size 4 /Root 1 0 R >>
+startxref 192
+%%EOF`;
+
+  const blob = new Blob([pdfContent], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
 interface Certificate {
   id: number;
   title: string;
@@ -17,7 +43,6 @@ const certificatePopupShownKey = 'typescript_certificate_popup_shown';
 const getCompletedLessons = (): string[] => {
   try {
     const completedLessons = JSON.parse(localStorage.getItem('completed_lessons') || '[]');
-
     return Array.isArray(completedLessons) ? completedLessons : [];
   } catch {
     return [];
@@ -77,7 +102,6 @@ export default function CertificatesPage() {
     if (!hasReceivedCertificate() || localStorage.getItem(certificatePopupShownKey)) {
       return;
     }
-
     setIsCertificatePopupOpen(true);
     localStorage.setItem(certificatePopupShownKey, 'true');
   }, []);
@@ -89,13 +113,16 @@ export default function CertificatesPage() {
   };
 
   const handleDownload = (certificateId: number) => {
-    console.log(`Скачивание сертификата ${certificateId}`);
-    // Здесь будет логика скачивания PDF
+    const cert = getCertificates().find(c => c.id === certificateId);
+    const fileName = cert 
+      ? `certificate-${cert.title.toLowerCase().replace(/\s+/g, '-')}.pdf`
+      : `certificate-${certificateId}.pdf`;
+    
+    downloadEmptyPDF(fileName);
   };
 
   const handleContinue = (certificateId: number) => {
     console.log(`Продолжить курс ${certificateId}`);
-    // Здесь будет переход к курсу
   };
 
   return (
